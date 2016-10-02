@@ -5,7 +5,6 @@
 		}
 		MainMenu.prototype.create = function(){
 			//TODO	We've already preloaded our assets, so let's kick right into the Main Menu itself.
-			console.log('as');
 
 			this.state.start('Game');
 		};

@@ -41,12 +41,9 @@
 			var camDeadzoneWidth = Math.floor((gameConfig.gameWidth*4)/5 - this.player.width);
 			var camDeadzoneHeight = gameConfig.gameHeight;
 			this.game.camera.deadzone = new Phaser.Rectangle(0, -10, camDeadzoneWidth, camDeadzoneHeight);
-
-			//initiate controls
-			this.cursors = this.game.input.keyboard.createCursorKeys();
 		};
 		Game.prototype.update = function(){
-			this.player.update(this.cursors);
+			this.player.update();
 		};
 		Game.prototype.render = function(){
 	        /* show the camera deadzone
