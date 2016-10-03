@@ -6,6 +6,6 @@ var gameConfig = {
 	parentContainer:'gameContainer',
 	//TODO:
 	physicsConfig: {
-
+		
 	}
 }

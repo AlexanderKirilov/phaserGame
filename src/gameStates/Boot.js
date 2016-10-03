@@ -6,6 +6,8 @@ var GameState = {};
 		}
 		Boot.prototype.init = function(){
 			this.input.maxPointers = 1;
+    		this.game.renderer.renderSession.roundPixels = true;
+    
 			if (this.game.device.desktop){
 				//any desktop specific settings go in here
 				this.scale.pageAlignHorizontally = true;

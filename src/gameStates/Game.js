@@ -25,6 +25,9 @@
 			//add level background
 			var levelBg = this.game.add.sprite(0, 0, 'bg');
 
+			//DEBUG:
+			window.game = this.game;
+
 			//initiate world
 			this.game.physics.startSystem(Phaser.Physics.ARCADE);
 			this.game.world.setBounds(0, 0, levelBg.width, levelBg.height);
@@ -35,7 +38,7 @@
 			this.game.renderer.renderSession.roundPixels = true;
 
 			//create player
-			this.player = new Player(this.game, 40, 130);
+			this.player = new Player(this.game, 40, 180);
 
 			//set the camera follow to be more beat em up style;
 			var camDeadzoneWidth = Math.floor((gameConfig.gameWidth*4)/5 - this.player.width);
@@ -53,14 +56,14 @@
 	        */
 
 	        /*  show the camera debug info
-	        game.debug.cameraInfo(game.camera, 32, 32);
-	        game.debug.spriteCoords(player, 32, 500);
+	        this.game.debug.cameraInfo(game.camera, 32, 32);
+	        this.game.debug.spriteCoords(player, 32, 500);
 	        */
 
-	        /*  show the player bounding box;
-	        game.debug.context.fillStyle = 'rgba(255,0,0,0.6)';
-	        game.debug.context.fillRect(player.x, player.y, player.width, player.height);
-	        */
+	        /*  show the player bounding box; */
+	        this.game.debug.context.fillStyle = 'rgba(255,0,0,0.6)';
+	        this.game.debug.context.fillRect(this.player.x, this.player.y, this.player.width, -this.player.height);
+	        
 	        this.game.debug.text(this.game.time.fps, 2, 14, "#00ff00");
     	};
     	Game.prototype.quitGame = function(pointer){

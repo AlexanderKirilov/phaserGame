@@ -3,9 +3,10 @@ var Player = (function(){
 		Phaser.Sprite.call(this, game, x, y,'billy_sheet');
 
 		game.physics.arcade.enable(this);
-		this.playerDeltaVelocity = 60;
+		this.playerDeltaJumpVelocity = 170;
+		this.playerDeltaVelocity = 85;
 		//this.scale.setTo(1.1, 1.1);
-
+		this.anchor.setTo(0,1);
 		//define player's input keys
 		
 		this.jumpKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -14,7 +15,7 @@ var Player = (function(){
 		
 		//define player's animations
 		this.animations.add('idle', Phaser.Animation.generateFrameNames('idle/', 1, 3, '', 1), 3, true);
-		this.animations.add('jump', Phaser.Animation.generateFrameNames('jump/', 0, 2, '', 1), 15, false);
+		this.animations.add('jump', Phaser.Animation.generateFrameNames('jump/', 0, 2, '', 1), 4, false);
 		this.animations.add('walkForward', Phaser.Animation.generateFrameNames('walk_forward/', 0, 5, '', 1), 8, true);
 		this.animations.add('walkBackward', Phaser.Animation.generateFrameNames('walk_backward/', 0, 5, '', 1), 8, true);
 		this.animations.add('punchLeft', Phaser.Animation.generateFrameNames('punch_left/', 0, 5, '', 1), 8, false);
@@ -24,14 +25,34 @@ var Player = (function(){
 		var self = this;
 		this.stateMachine = new StateMachine(this, {debug:true});
 		this.stateMachine.add('idle', {
-			enter: function(){},
-			update: function(){},
+			enter: function(){
+				console.log(self.y);
+			},
+			update: function(){
+				self.y = Math.floor(self.y);
+			},
 			exit: function(){}
 		});
 		this.stateMachine.add('jump', {
-			enter: function(){},
-			update: function(){},
-			exit: function(){}
+			enter: function(){
+				this.startY = Math.floor(self.y);
+				console.log(this.startY);
+			},
+			update: function(){
+				if(new Date() - self.stateMachine.timer < 450){
+					self.body.velocity.y = -self.playerDeltaJumpVelocity;
+				}else{
+					if(self.y < this.startY){
+						self.body.velocity.y = self.playerDeltaJumpVelocity;
+					}else{
+						self.body.velocity.y = 0;
+						self.stateMachine.currentState = 'idle'; 
+						self.y = this.startY;
+					}
+				}
+			},
+			exit: function(){
+			}
 		});
 		this.stateMachine.add('punchRight', {
 			enter: function(){},
@@ -45,10 +66,12 @@ var Player = (function(){
 			},
 			exit: function(){}
 		});
+		window.body = this.body;
+		window.player = this;
 		this.stateMachine.add('walkForward', {
 			enter: function(){},
 			update: function(){
-				self.body.velocity.setTo(0,0);
+				self.body.velocity.y = 0;
 				if(self.cursors.right.isDown){
 					self.scale.x = 1;
 					self.body.velocity.x = self.playerDeltaVelocity;
@@ -60,8 +83,9 @@ var Player = (function(){
 				if(self.cursors.up.isDown){
 					if(self.body.y + self.body.width <= 150){
 						self.body.y = 150 - self.body.width;
-					}else
+					}else{
 						self.body.velocity.y = -self.playerDeltaVelocity;
+					}
 				}
 				if(self.cursors.down.isDown){
 					self.body.velocity.y = self.playerDeltaVelocity;
@@ -81,14 +105,14 @@ var Player = (function(){
 		});
 
 		this.stateMachine.transition('', 'idle', 'jump', function(){
-			return (self.jumpKey.isDown);
+			return (self.jumpKey.downDuration(20));
 		});
-		this.stateMachine.transition('', 'jump', 'idle', function(){
-			return (!self.animations.currentAnim.isPlaying);
-		});
-
+		//jump -> idle is done manually
 		this.stateMachine.transition('', 'walkForward', 'punchLeft', function(){
 			return(self.punchKey.downDuration(200));
+		});
+		this.stateMachine.transition('', 'walkForward', 'jump', function(){
+			return(self.jumpKey.downDuration(20));
 		});
 		this.stateMachine.transition('', 'idle', 'punchLeft', function(){
 			return(self.punchKey.downDuration(200));

@@ -12,7 +12,6 @@ function StateMachine(entity, opts){
 	this.currentState = null;
 	this.previousState = null;
 	this.timer = null;
-
 }
 StateMachine.prototype.add = function(name, state){
 	if(name && state){
@@ -46,55 +45,59 @@ StateMachine.prototype.transition = function(name, fromState, toState, predicate
 	this.transitions[name] = transition;
 	return transition;
 };
-
 StateMachine.prototype.update = function(){
 	if(!this.currentState){
 		this.currentState = this.initialState;
 	}
-
 	var state = this.states[this.currentState];
 
 	if (this.previousState !== this.currentState) {
-		if( this.lastTransition ){
+		if(this.lastTransition){
 			this.entity.animations.play( this.lastTransition.name );
-		if( this.opts.debug ){
-			console.info("Play transitional animation: " + this.lastTransition.name );
+			if(this.opts.debug){
+				console.info("Play transitional animation: " + this.lastTransition.name );
+			}
 		}
-	}
-
-	if (state.enter) {
-		this.timer = new Date();
-		state.enter( this.lastTransition );
-	}
+		if(state.enter){
+			this.timer = new Date();
+			state.enter(this.lastTransition);
+		}
 		this.previousState = this.currentState;
 	}
 
 	// Verify the transitional animation has completed before entering update()
 	if( this.lastTransition && 
-	( this.entity.animations.currentAnim.name == this.lastTransition.name && this.entity.animations.currentAnim.isPlaying ) ){
+	(this.entity.animations.currentAnim.name == this.lastTransition.name && this.entity.animations.currentAnim.isPlaying)){
 		return;
 	}
 
 	if( this.entity.animations.currentAnim.name != this.currentState ){
-		if( this.opts.debug ){
+		if(this.opts.debug){
 			console.info("Play animation: " + this.currentState );
 		}
-		this.entity.animations.play( this.currentState );
+		this.entity.animations.play(this.currentState);
 	}
 
-	if (state.update) {
+	if(state.update){
 		state.update();
 	}
 	// Iterate through transitions.
-	for (var name in this.transitions) {
+	for(var name in this.transitions){
 		var transition = this.transitions[name];
-		if (transition.fromState === this.currentState && transition.predicate()) {
+		if(transition.fromState === this.currentState && transition.predicate()){
 			this.lastTransition = transition;
-		if (state.exit) {
-			state.exit();
-		}
-		this.currentState = transition.toState;
-		return;
+			if(state.exit){
+				state.exit();
+			}
+			this.currentState = transition.toState;
+			return;
 		}
 	}
+};
+StateMachine.prototype.doTransition = function(toState){
+	var state = this.states[this.currentState];
+	if(state.exit){
+		state.exit();
+	}
+	this.currentState = toState;
 };
