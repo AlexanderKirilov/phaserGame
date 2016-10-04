@@ -3,7 +3,7 @@ var Player = (function(){
 		Phaser.Sprite.call(this, game, x, y,'billy_sheet');
 
 		game.physics.arcade.enable(this);
-		this.playerDeltaJumpVelocity = 170;
+		this.playerDeltaJumpVelocity = 150;
 		this.playerDeltaVelocity = 85;
 		//this.scale.setTo(1.1, 1.1);
 		this.anchor.setTo(0,1);
@@ -26,19 +26,21 @@ var Player = (function(){
 		this.stateMachine = new StateMachine(this, {debug:true});
 		this.stateMachine.add('idle', {
 			enter: function(){
-				console.log(self.y);
+				self.body.velocity.setTo(0,0);
 			},
 			update: function(){
-				self.y = Math.floor(self.y);
+				self.body.height = self.height;	
 			},
 			exit: function(){}
 		});
 		this.stateMachine.add('jump', {
 			enter: function(){
-				this.startY = Math.floor(self.y);
-				console.log(this.startY);
+				this.startY = self.y;
 			},
 			update: function(){
+				if(self.height !== self.body.height){
+					self.body.height = self.height;
+				}
 				if(new Date() - self.stateMachine.timer < 450){
 					self.body.velocity.y = -self.playerDeltaJumpVelocity;
 				}else{
@@ -46,8 +48,8 @@ var Player = (function(){
 						self.body.velocity.y = self.playerDeltaJumpVelocity;
 					}else{
 						self.body.velocity.y = 0;
-						self.stateMachine.currentState = 'idle'; 
-						self.y = this.startY;
+						self.stateMachine.doTransition('idle'); //force transition
+						self.y = this.startY-2;
 					}
 				}
 			},
@@ -60,14 +62,13 @@ var Player = (function(){
 			exit: function(){}
 		});
 		this.stateMachine.add('punchLeft', {
-			enter: function(){},
+			enter: function(){
+				self.body.velocity.setTo(0,0);
+			},
 			update: function(){
-
 			},
 			exit: function(){}
 		});
-		window.body = this.body;
-		window.player = this;
 		this.stateMachine.add('walkForward', {
 			enter: function(){},
 			update: function(){
@@ -93,7 +94,7 @@ var Player = (function(){
 			},
 			exit: function(){
 				//  Reset the players velocity (movement)
-				self.body.velocity.setTo(0,0);
+				
 			}
 		});
 		//define player's transitions between states
@@ -103,7 +104,6 @@ var Player = (function(){
 		this.stateMachine.transition('', 'walkForward', 'idle', function(){
 			return(!(self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown));
 		});
-
 		this.stateMachine.transition('', 'idle', 'jump', function(){
 			return (self.jumpKey.downDuration(20));
 		});
@@ -122,61 +122,22 @@ var Player = (function(){
 		});
 		this.animations.play(this.stateMachine.initialState);
 
+		//limit player
 		this.body.collideWorldBounds = true;
 		
 		this.game.add.existing(this);
 
 		//set camera to follow player;
 		game.camera.follow(this);
+		//DEBUG ONLY
+		window.body = this.body;
+		window.player = this;
 	}
 	Player.prototype = Object.create(Phaser.Sprite.prototype);
 	Player.prototype.constructor = Player;
 
 	Player.prototype.update = function(){
-		
-		
 		this.stateMachine.update();
-
-		/*
-		var playerDeltaVelocity = 70;
-		//check if Hitting NOTE: REDO !
-		if(this.game.input.keyboard.isDown(Phaser.KeyCode.F)){
-			this.animations.play('punchLeft', 10);
-		}else{  // else check if walking
-			var isMoving = false;
-			if (this.game.input.keyboard.isDown(Phaser.KeyCode.A)){   //  Move to the left
-			//prevent from tracing back and keep the player 2 px from the left screen border
-			if(this.body.x <= this.game.camera.x + 2){
-				this.body.x = this.game.camera.x + 2;
-			}else{
-				this.body.velocity.x = -playerDeltaVelocity;
-			}
-				isMoving = true;
-			}else if (this.game.input.keyboard.isDown(Phaser.KeyCode.D)){   //  Move to the right
-				this.body.velocity.x = playerDeltaVelocity;
-
-				this.animations.play('walkForward', 8);
-				isMoving = true;
-			}
-
-			if (this.game.input.keyboard.isDown(Phaser.KeyCode.W)){
-			if(this.body.y + this.body.width <= 142){
-				this.body.y = 142 - this.body.width;
-			}else{
-				this.body.velocity.y = -playerDeltaVelocity;
-			}
-				isMoving = true;
-			}else if( this.game.input.keyboard.isDown(Phaser.KeyCode.S)){
-				this.body.velocity.y = playerDeltaVelocity;
-
-				this.animations.play('walkForward', 8);
-				isMoving = true;
-			}
-			//Play idle animation
-			if(!isMoving){
-				this.play('idle', 3);
-			}
-		}*/
 	};
 	return Player;
 })();

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 	<meta charset="UTF-8" />
 	<title>phaser</title>
 </head>
@@ -18,7 +17,7 @@
 <script src="node_modules/phaser/build/phaser.js" type="text/javascript" charset="utf-8"></script>
 
 <script src="src/gameConfig.js" type="text/javascript" charset="utf-8"></script>
-f
+
 <script src="src/gameStates/Boot.js" type="text/javascript"></script>
 <script src="src/gameStates/Preloader.js" type="text/javascript"></script>
 <script src="src/gameStates/MainMenu.js" type="text/javascript"></script>
@@ -29,11 +28,12 @@ f
 <script src="src/Player.js" type="text/javascript"></script>
 
 <script src="src/main.js" type="text/javascript" charset="utf-8"></script>
-<button onClick='step()'>step</button>
+<!--<button onClick='step()'>step</button>-->
 <script>
 	window.addEventListener('load',function(){
 		DoubleDragon.execute();
-	})
+	});
+	//DEBUGGING
 	function step(){
 		window.game.enableStep();
 		window.game.step();

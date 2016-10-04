@@ -19,14 +19,10 @@
 		    this.rnd;       //  the repeatable random number generator (Phaser.RandomDataGenerator)
 
 		    this.player;
-		    this.cursors;
 		}
 		Game.prototype.create = function(){
 			//add level background
 			var levelBg = this.game.add.sprite(0, 0, 'bg');
-
-			//DEBUG:
-			window.game = this.game;
 
 			//initiate world
 			this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -42,8 +38,7 @@
 
 			//set the camera follow to be more beat em up style;
 			var camDeadzoneWidth = Math.floor((gameConfig.gameWidth*4)/5 - this.player.width);
-			var camDeadzoneHeight = gameConfig.gameHeight;
-			this.game.camera.deadzone = new Phaser.Rectangle(0, -10, camDeadzoneWidth, camDeadzoneHeight);
+			this.game.camera.deadzone = new Phaser.Rectangle(0, -10, camDeadzoneWidth, gameConfig.gameHeight);
 		};
 		Game.prototype.update = function(){
 			this.player.update();
@@ -62,8 +57,15 @@
 
 	        /*  show the player bounding box; */
 	        this.game.debug.context.fillStyle = 'rgba(255,0,0,0.6)';
-	        this.game.debug.context.fillRect(this.player.x, this.player.y, this.player.width, -this.player.height);
-	        
+	        //this.game.debug.context.fillRect(this.player.body.x, this.player.body.y, this.player.body.width, this.player.body.height);
+			//Phaser.Physics.Arcade.Body.renderBodyInfo(this.game.debug, this.player.body);
+			this.game.debug.spriteBounds(this.player);
+			
+			this.game.debug.spriteInfo(this.player, 32, 32);
+			//this.game.debug.spriteCoords(this.player, 32, 128);
+			
+			//this.game.debug.
+
 	        this.game.debug.text(this.game.time.fps, 2, 14, "#00ff00");
     	};
     	Game.prototype.quitGame = function(pointer){
