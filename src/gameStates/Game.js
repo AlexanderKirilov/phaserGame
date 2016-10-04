@@ -59,9 +59,9 @@
 	        this.game.debug.context.fillStyle = 'rgba(255,0,0,0.6)';
 	        //this.game.debug.context.fillRect(this.player.body.x, this.player.body.y, this.player.body.width, this.player.body.height);
 			//Phaser.Physics.Arcade.Body.renderBodyInfo(this.game.debug, this.player.body);
-			this.game.debug.spriteBounds(this.player);
+			//this.game.debug.spriteBounds(this.player);
 			
-			this.game.debug.spriteInfo(this.player, 32, 32);
+			//this.game.debug.spriteInfo(this.player, 32, 32);
 			//this.game.debug.spriteCoords(this.player, 32, 128);
 			
 			//this.game.debug.
