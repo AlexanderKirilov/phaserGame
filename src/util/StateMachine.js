@@ -13,8 +13,13 @@ function StateMachine(entity, opts){
 	this.previousState = null;
 	this.timer = null;
 }
-StateMachine.prototype.add = function(name, state){
+StateMachine.prototype.add = function(name, state, animationName){
 	if(name && state){
+		if(animationName){
+			state.animationName = animationName;
+		}else{
+			state.animationName = name;
+		}
 		this.states[name] = state;
 		if(!this.initialState){
 			this.initialState = name;
@@ -71,15 +76,15 @@ StateMachine.prototype.update = function(){
 		return;
 	}
 
-	if( this.entity.animations.currentAnim.name != this.currentState ){
+	if(state.update){
+		state.update();
+	}
+
+	if( this.entity.animations.currentAnim.name != this.currentState || this.states[this.currentState].animationName != this.entity.animations.currentAnim.name){
 		if(this.opts.debug){
 			console.info("Play animation: " + this.currentState );
 		}
-		this.entity.animations.play(this.currentState);
-	}
-
-	if(state.update){
-		state.update();
+		this.entity.animations.play(this.states[this.currentState].animationName);
 	}
 	// Iterate through transitions.
 	for(var name in this.transitions){

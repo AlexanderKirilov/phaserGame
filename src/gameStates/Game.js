@@ -37,7 +37,7 @@
 			this.player = new Player(this.game, 40, 180);
 
 			//set the camera follow to be more beat em up style;
-			var camDeadzoneWidth = Math.floor((gameConfig.gameWidth*4)/5 - this.player.width);
+			var camDeadzoneWidth = Math.floor((gameConfig.gameWidth*3)/4 - this.player.width/2);
 			this.game.camera.deadzone = new Phaser.Rectangle(0, -10, camDeadzoneWidth, gameConfig.gameHeight);
 		};
 		Game.prototype.update = function(){

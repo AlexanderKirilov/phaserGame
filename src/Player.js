@@ -60,7 +60,7 @@ var Player = (function(){
 			enter: function(){},
 			update: function(){},
 			exit: function(){}
-		});
+		});	
 		this.stateMachine.add('punchLeft', {
 			enter: function(){
 				self.body.velocity.setTo(0,0);
@@ -74,11 +74,11 @@ var Player = (function(){
 			update: function(){
 				self.body.velocity.y = 0;
 				if(self.cursors.right.isDown){
-					self.scale.x = 1;
+					this.animationName = 'walkForward';
 					self.body.velocity.x = self.playerDeltaVelocity;
 				}
 				if(self.cursors.left.isDown){
-					self.scale.x = -1;
+					this.animationName = 'walkBackward';
 					self.body.velocity.x = -self.playerDeltaVelocity;
 				}
 				if(self.cursors.up.isDown){
@@ -100,7 +100,7 @@ var Player = (function(){
 		//define player's transitions between states
 		this.stateMachine.transition('', 'idle', 'walkForward', function(){
 			return (self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown);
-		});
+		});	
 		this.stateMachine.transition('', 'walkForward', 'idle', function(){
 			return(!(self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown));
 		});

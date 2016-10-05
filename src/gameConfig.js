@@ -1,5 +1,5 @@
 var gameConfig = {
-	gameWidth: 372,
+	gameWidth: 465,
 	gameHeight: 248,
 	//false for pixel-art
 	antialias: false,
