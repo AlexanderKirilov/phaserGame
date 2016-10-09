@@ -76,16 +76,19 @@ StateMachine.prototype.update = function(){
 		return;
 	}
 
-	if(state.update){
-		state.update();
-	}
 
-	if( this.entity.animations.currentAnim.name != this.currentState || this.states[this.currentState].animationName != this.entity.animations.currentAnim.name){
+	if( this.entity.animations.currentAnim.name != this.currentState && state.animationName != this.entity.animations.currentAnim.name
+		&& state.animationName !== ' '){
 		if(this.opts.debug){
 			console.info("Play animation: " + this.currentState );
 		}
 		this.entity.animations.play(this.states[this.currentState].animationName);
 	}
+	
+	if(state.update){
+		state.update();
+	}
+
 	// Iterate through transitions.
 	for(var name in this.transitions){
 		var transition = this.transitions[name];

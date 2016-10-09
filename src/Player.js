@@ -3,10 +3,12 @@ var Player = (function(){
 		Phaser.Sprite.call(this, game, x, y,'billy_sheet');
 
 		game.physics.arcade.enable(this);
-		this.playerDeltaJumpVelocity = 150;
+		this.playerDeltaJumpVelocity = 200;
 		this.playerDeltaVelocity = 85;
+		// 0.001 * pxPerSecond;
+		this.multiplier = 0.001 * this.playerDeltaJumpVelocity;
 		//this.scale.setTo(1.1, 1.1);
-		this.anchor.setTo(0,1);
+		this.anchor.setTo(0.5,1);
 		//define player's input keys
 		
 		this.jumpKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -15,10 +17,9 @@ var Player = (function(){
 		
 		//define player's animations
 		this.animations.add('idle', Phaser.Animation.generateFrameNames('idle/', 1, 3, '', 1), 3, true);
-		this.animations.add('jump', Phaser.Animation.generateFrameNames('jump/', 0, 2, '', 1), 4, false);
-		this.animations.add('walkForward', Phaser.Animation.generateFrameNames('walk_forward/', 0, 5, '', 1), 8, true);
-		this.animations.add('walkBackward', Phaser.Animation.generateFrameNames('walk_backward/', 0, 5, '', 1), 8, true);
-		this.animations.add('punchLeft', Phaser.Animation.generateFrameNames('punch_left/', 0, 5, '', 1), 8, false);
+		//this.animations.add('jump', Phaser.Animation.generateFrameNames('jump/', 0, 4, '', 1), 8, false);
+		this.animations.add('walk', Phaser.Animation.generateFrameNames('walk_forward/', 0, 5, '', 1), 8, true);
+		this.animations.add('punchLeft', Phaser.Animation.generateFrameNames('punch_left/', 0, 4, '', 1), 6, false);
 		this.animations.add('punchRight', Phaser.Animation.generateFrameNames('punch_right/', 0, 4, '', 1), 8, false);
 
 		//Define player's states
@@ -27,35 +28,52 @@ var Player = (function(){
 		this.stateMachine.add('idle', {
 			enter: function(){
 				self.body.velocity.setTo(0,0);
+				self.body.reset(self.x,self.y);
 			},
 			update: function(){
-				self.body.height = self.height;	
-			},
-			exit: function(){}
-		});
-		this.stateMachine.add('jump', {
-			enter: function(){
-				this.startY = self.y;
-			},
-			update: function(){
-				if(self.height !== self.body.height){
-					self.body.height = self.height;
-				}
-				if(new Date() - self.stateMachine.timer < 450){
-					self.body.velocity.y = -self.playerDeltaJumpVelocity;
-				}else{
-					if(self.y < this.startY){
-						self.body.velocity.y = self.playerDeltaJumpVelocity;
-					}else{
-						self.body.velocity.y = 0;
-						self.stateMachine.doTransition('idle'); //force transition
-						self.y = this.startY-2;
-					}
-				}
+				self.body.setSize(Math.abs(self.width), self.height);
+				self.body.reset(self.x,self.y);
 			},
 			exit: function(){
 			}
-		});
+		}, 'idle');
+		this.stateMachine.add('jump', {
+			enter: function(){
+				//keep player initial coordinate for reference
+				this.startY = self.y;
+				this.time = new Date().getTime();
+				self.body.velocity.y = 0;
+			},
+			update: function(){
+				var now = new Date().getTime();
+				var delta = now - (this.time||now);
+				var step = 0.1;
+				//catch up with physics time
+				//match the physical bounding box
+				if(self.height !== self.body.height){
+					self.body.height = self.height;
+					self.body.width = self.width;
+				}
+				if(now - self.stateMachine.timer < 400){
+					self.y -= self.multiplier * delta;
+					self.y += step;
+					self.frameName = 'jump/0';
+
+				}else{
+					if(self.y < this.startY){
+						self.y += self.multiplier * delta;
+						self.y -= step;
+					}else{
+						self.body.velocity.y = 0;
+						self.stateMachine.doTransition('idle'); //force transition
+						self.y = this.startY;
+					}
+				}
+				this.time = now;
+			},
+			exit: function(){
+			}
+		}, ' ');
 		this.stateMachine.add('punchRight', {
 			enter: function(){},
 			update: function(){},
@@ -66,19 +84,22 @@ var Player = (function(){
 				self.body.velocity.setTo(0,0);
 			},
 			update: function(){
+				self.body.setSize(self.width/2, self.height, self.width/2*self.scale.x, 0);
+				self.body.reset(self.x,self.y);
 			},
-			exit: function(){}
+			exit: function(){
+			}
 		});
-		this.stateMachine.add('walkForward', {
+		this.stateMachine.add('walk', {
 			enter: function(){},
 			update: function(){
-				self.body.velocity.y = 0;
+				self.body.velocity.setTo(0,0);
 				if(self.cursors.right.isDown){
-					this.animationName = 'walkForward';
+					self.scale.x = 1;
 					self.body.velocity.x = self.playerDeltaVelocity;
 				}
 				if(self.cursors.left.isDown){
-					this.animationName = 'walkBackward';
+					self.scale.x = -1;
 					self.body.velocity.x = -self.playerDeltaVelocity;
 				}
 				if(self.cursors.up.isDown){
@@ -89,7 +110,9 @@ var Player = (function(){
 					}
 				}
 				if(self.cursors.down.isDown){
-					self.body.velocity.y = self.playerDeltaVelocity;
+					if(self.body.bottom + 4 <= self.game.world.bottom){
+						self.body.velocity.y = self.playerDeltaVelocity;
+					}
 				}
 			},
 			exit: function(){
@@ -98,20 +121,20 @@ var Player = (function(){
 			}
 		});
 		//define player's transitions between states
-		this.stateMachine.transition('', 'idle', 'walkForward', function(){
+		this.stateMachine.transition('', 'idle', 'walk', function(){
 			return (self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown);
 		});	
-		this.stateMachine.transition('', 'walkForward', 'idle', function(){
+		this.stateMachine.transition('', 'walk', 'idle', function(){
 			return(!(self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown));
 		});
 		this.stateMachine.transition('', 'idle', 'jump', function(){
 			return (self.jumpKey.downDuration(20));
 		});
 		//jump -> idle is done manually
-		this.stateMachine.transition('', 'walkForward', 'punchLeft', function(){
+		this.stateMachine.transition('', 'walk', 'punchLeft', function(){
 			return(self.punchKey.downDuration(200));
 		});
-		this.stateMachine.transition('', 'walkForward', 'jump', function(){
+		this.stateMachine.transition('', 'walk', 'jump', function(){
 			return(self.jumpKey.downDuration(20));
 		});
 		this.stateMachine.transition('', 'idle', 'punchLeft', function(){
