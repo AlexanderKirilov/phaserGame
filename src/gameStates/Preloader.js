@@ -22,6 +22,7 @@
 			//	Here we load the rest of the assets our game needs.
 			//	As this is just a Project Template I've not provided these assets, swap them for your own.
 			this.load.image('bg', 'assets/levels/Stage_One_Base.png');
+			this.load.image('titleScreenBG', 'assets/loadingScreen/dd_title.jpg');
 			this.load.atlasJSONArray('billy_sheet', 'assets/player/billy_sprite.png', 'assets/player/billy_sprite.json');
 			//this.load.audio('titleMusic', ['audio/main_menu.mp3']);
 			//this.load.bitmapFont('caslon', 'fonts/caslon.png', 'fonts/caslon.xml');
