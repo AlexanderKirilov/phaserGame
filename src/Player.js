@@ -10,7 +10,6 @@ var Player = (function(){
 		//this.scale.setTo(1.1, 1.1);
 		this.anchor.setTo(0.5,1);
 		//define player's input keys
-		
 		this.jumpKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 		this.punchKey = game.input.keyboard.addKey(Phaser.Keyboard.F);
 		this.cursors = game.input.keyboard.createCursorKeys();
@@ -29,15 +28,14 @@ var Player = (function(){
 		this.stateMachine.add('idle', {
 			enter: function(){
 				self.body.velocity.setTo(0,0);
-				self.body.reset(self.x,self.y);
 			},
 			update: function(){
-				self.body.setSize(Math.abs(self.width), self.height);
-				self.body.reset(self.x,self.y);
+				//self.body.setSize(self.width, self.height);
+				//self.body.reset(self.x,self.y);
 			},
 			exit: function(){
 			}
-		}, 'idle');
+		});
 		this.stateMachine.add('jump', {
 			enter: function(){
 				//keep player initial coordinate for reference
@@ -51,15 +49,11 @@ var Player = (function(){
 				var step = 0.1;
 				//catch up with physics time
 				//match the physical bounding box
-				if(self.height !== self.body.height){
-					self.body.height = self.height;
-					self.body.width = self.width;
-				}
+				
 				if(now - self.stateMachine.timer < 400){
 					self.y -= self.multiplier * delta;
 					self.y += step;
 					self.frameName = 'jump/0';
-
 				}else{
 					if(self.y < this.startY){
 						self.y += self.multiplier * delta;
@@ -92,19 +86,39 @@ var Player = (function(){
 			}
 		});
 		this.stateMachine.add('walk', {
-			enter: function(){},
+			enter: function(){
+				var initialKeyDownTime;
+				var leftCursor = self.cursors.left;
+				var rightCursor = self.cursors.right;
+				var rightLastPressed;
+				var leftLastPressed;
+				if((rightCursor._justDown && !rightCursor._justUp)){
+					initialKeyDownTime = rightCursor.downTime;
+				}
+				if(leftCursor._justDown && !leftCursor._justUp){
+					initialKeyDownTime = leftCursor.downTime;
+				}
+				if(initialKeyDownTime !== undefined){
+					if(initialKeyDownTime - (this.lastPress || 0) < 250){
+						self.stateMachine.doTransition('run');
+					}
+					this.lastPress = initialKeyDownTime;
+				}
+			},
 			update: function(){
 				self.body.velocity.setTo(0,0);
 				if(self.cursors.right.isDown){
 					self.scale.x = 1;
 					self.body.velocity.x = self.playerDeltaVelocity;
+					self.body.setSize(self.width, self.height);
 				}
 				if(self.cursors.left.isDown){
 					self.scale.x = -1;
 					self.body.velocity.x = -self.playerDeltaVelocity;
+					self.body.setSize(self.width*self.scale.x, self.height);
 				}
 				if(self.cursors.up.isDown){
-					if(self.body.y + self.body.width <= 150){
+					if(self.body.bottom <= 200){
 						self.body.y = 150 - self.body.width;
 					}else{
 						self.body.velocity.y = -self.playerDeltaVelocity;
@@ -118,9 +132,21 @@ var Player = (function(){
 			},
 			exit: function(){
 				//  Reset the players velocity (movement)
-				
 			}
 		});
+		this.stateMachine.add('run', {
+			enter: function(){
+				if(self.cursors.left.isDown){
+					self.body.velocity.x = -(2*self.playerDeltaVelocity);
+				}else if(self.cursors.right.isDown){
+					self.body.velocity.x = 2*self.playerDeltaVelocity;
+				}
+			},
+			update: function(){
+			},
+			exit: function(){
+			}
+		})
 		//define player's transitions between states
 		this.stateMachine.transition('', 'idle', 'walk', function(){
 			return (self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown);
@@ -132,6 +158,10 @@ var Player = (function(){
 			return (self.jumpKey.downDuration(20));
 		});
 		//jump -> idle is done manually
+		this.stateMachine.transition('', 'run', 'idle', function(){
+			return(!(self.cursors.left.isDown || self.cursors.right.isDown));
+		});
+		//walk/idle -> run is done manually
 		this.stateMachine.transition('', 'walk', 'punchLeft', function(){
 			return(self.punchKey.downDuration(200));
 		});

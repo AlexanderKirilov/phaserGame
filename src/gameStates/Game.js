@@ -41,7 +41,7 @@
 
 			//set the camera follow to be more beat em up style;
 			var camDeadzoneWidth = Math.floor((gameConfig.gameWidth*3)/4 - this.player.width/2);
-			this.game.camera.deadzone = new Phaser.Rectangle(0, -10, camDeadzoneWidth, gameConfig.gameHeight);
+			this.game.camera.deadzone = new Phaser.Rectangle(0, 0, camDeadzoneWidth, gameConfig.gameHeight);
 		};
 		Game.prototype.update = function(){
 			this.player.update();
@@ -59,8 +59,8 @@
 	        */
 
 	        /*  show the player bounding box; */
-	        //this.game.debug.context.fillRect(this.player.body.x, this.player.body.y, this.player.body.width, this.player.body.height);
-			//this.game.debug.spriteBounds(this.player);
+	        this.game.debug.context.fillRect(this.player.body.x, this.player.body.y, this.player.body.width, this.player.body.height);
+			this.game.debug.spriteBounds(this.player);
 			
 			//this.game.debug.spriteInfo(this.player, 32, 32);
 			//this.game.debug.spriteCoords(this.player, 32, 128);
