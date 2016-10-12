@@ -92,11 +92,12 @@ var Player = (function(){
 				var rightCursor = self.cursors.right;
 				var rightLastPressed;
 				var leftLastPressed;
-				if((rightCursor._justDown && !rightCursor._justUp)){
-					initialKeyDownTime = rightCursor.downTime;
+				debugger;
+				if((rightCursor.isDown)){
+					initialKeyDownTime = rightCursor.timeDown;
 				}
-				if(leftCursor._justDown && !leftCursor._justUp){
-					initialKeyDownTime = leftCursor.downTime;
+				if(leftCursor.isDown){
+					initialKeyDownTime = leftCursor.timeDown;
 				}
 				if(initialKeyDownTime !== undefined){
 					if(initialKeyDownTime - (this.lastPress || 0) < 250){
@@ -136,13 +137,13 @@ var Player = (function(){
 		});
 		this.stateMachine.add('run', {
 			enter: function(){
-				if(self.cursors.left.isDown){
+			},
+			update: function(){
+								if(self.cursors.left.isDown){
 					self.body.velocity.x = -(2*self.playerDeltaVelocity);
 				}else if(self.cursors.right.isDown){
 					self.body.velocity.x = 2*self.playerDeltaVelocity;
 				}
-			},
-			update: function(){
 			},
 			exit: function(){
 			}

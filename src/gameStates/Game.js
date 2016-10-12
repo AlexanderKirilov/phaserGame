@@ -59,8 +59,8 @@
 	        */
 
 	        /*  show the player bounding box; */
-	        this.game.debug.context.fillRect(this.player.body.x, this.player.body.y, this.player.body.width, this.player.body.height);
-			this.game.debug.spriteBounds(this.player);
+	        //this.game.debug.context.fillRect(this.player.body.x, this.player.body.y, this.player.body.width, this.player.body.height);
+			//this.game.debug.spriteBounds(this.player);
 			
 			//this.game.debug.spriteInfo(this.player, 32, 32);
 			//this.game.debug.spriteCoords(this.player, 32, 128);
