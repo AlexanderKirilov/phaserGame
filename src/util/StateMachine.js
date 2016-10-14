@@ -51,40 +51,39 @@ StateMachine.prototype.transition = function(name, fromState, toState, predicate
 	return transition;
 };
 StateMachine.prototype.update = function(){
-	if(!this.currentState){
-		this.currentState = this.initialState;
-	}
-	var state = this.states[this.currentState];
-
-	if (this.previousState !== this.currentState) {
-		if(this.lastTransition){
-			this.entity.animations.play( this.lastTransition.name );
-			if(this.opts.debug){
-				console.info("Play transitional animation: " + this.lastTransition.name );
-			}
-		}
-		if(state.enter){
-			this.timer = new Date();
-			state.enter(this.lastTransition);
-		}
-		this.previousState = this.currentState;
-	}
-
 	// Verify the transitional animation has completed before entering update()
 	if( this.lastTransition && 
 	(this.entity.animations.currentAnim.name == this.lastTransition.name && this.entity.animations.currentAnim.isPlaying)){
 		return;
 	}
-
-
-	if( this.entity.animations.currentAnim.name != this.currentState && state.animationName != this.entity.animations.currentAnim.name
-		&& state.animationName !== ' '){
-		if(this.opts.debug){
-			console.info("Play animation: " + this.currentState );
-		}
-		this.entity.animations.play(this.states[this.currentState].animationName);
+	//initialState
+	if(!this.currentState){
+		this.currentState = this.initialState;
 	}
-	
+	//currentState
+	var state = this.states[this.currentState];
+	//if change in state ...
+	if (this.previousState !== this.currentState) {
+		//a callback before changing the animation
+		this.previousState = this.currentState;
+		if(state.preEnter){
+			state.preEnter();
+		}
+		//change sprite animation
+		if(this.opts.debug){
+			console.info('Playing state animation: ' + state.animationName);
+		}
+		this.entity.animations.play(state.animationName);
+		//a callback after changing animation
+		if(state.enter){
+			this.timer = new Date();
+			state.enter();
+		}
+	}
+	//handle input right before update
+	if(state.handleInput){
+		state.handleInput();
+	}
 	if(state.update){
 		state.update();
 	}
@@ -96,6 +95,12 @@ StateMachine.prototype.update = function(){
 			this.lastTransition = transition;
 			if(state.exit){
 				state.exit();
+			}
+			if(transition.name !== ''){
+				if(this.opts.debug){
+					//console.info("Play transitional animation: " + this.lastTransition.name );
+				}
+				this.entity.animations.play( this.lastTransition.name );
 			}
 			this.currentState = transition.toState;
 			return;
