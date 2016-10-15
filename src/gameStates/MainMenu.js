@@ -19,8 +19,7 @@
 			//set up the tween
 			this.tweenTitleScreenBg = this.game.add.tween(this.titleScreen).to({alpha:0}, 1000, Phaser.Easing.Cubic.Out);
 			// start Game after tween fadeOut
-			this.tweenTitleScreenBg.onComplete.add(function(target, tween){
-				console.log('event dispatched');
+			this.tweenTitleScreenBg.onComplete.add(function(){
 				self.state.start('Game');
 			});
 		};
