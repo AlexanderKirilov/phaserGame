@@ -3,18 +3,19 @@ var StageManager = (function(){
 		this.currStage = 0;
 		this.stages = [];
 
-		this.game = game;
-		this.enemyGroup = gameState.enemyGroup;
+		this.game = gameState.game;
 	}
 
-	StageManager.prototype.add = function(stage){
+	StageManager.prototype.add = function(stage, enemiesGroup){
 		//add the stage
 		//limit stage camera
 		if(stage.boundRight){
 			this.game.camera.bounds.width = stage.boundRight;
 		}
 		//attach the global enemyGroup
-		stage.enemyGroup = this.enemyGroup;
+		if(enemiesGroup){
+			stage.enemiesGroup = enemiesGroup;
+		}
 		this.stages.push(stage);
 	};
 	StageManager.prototype.update = function(){

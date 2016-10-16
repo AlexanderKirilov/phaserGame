@@ -1,6 +1,6 @@
  var Player = (function(){
-	function Player(state, x, y){
-		Phaser.Sprite.call(this, state.game, x, y,'billy_sheet');
+	function Player(state, x, y, spriteSheet){
+		Phaser.Sprite.call(this, state.game, x, y, spriteSheet || 'billy_sheet');
 		this.state = state;
 
 		this.game.physics.arcade.enable(this);
@@ -12,9 +12,9 @@
 		//this.scale.setTo(1.1, 1.1);
 		this.anchor.setTo(0.5,1);
 		//define player's input keys
-		this.jumpKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-		this.punchKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
-		this.cursors = game.input.keyboard.createCursorKeys();
+		this.jumpKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		this.punchKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
+		this.cursors = this.game.input.keyboard.createCursorKeys();
 		
 		//define player's animations
 		this.animations.add('idle', Phaser.Animation.generateFrameNames('idle/', 1, 3, '', 1), 3, true);
@@ -64,7 +64,7 @@
 				self.body.setSize(self.width/2, self.height, self.width/2*self.scale.x, 0);
 				self.body.reset(self.x,self.y);
 				if(self.animations.currentAnim._frameIndex >= this.hitBox){
-					self.game.physics.arcade.overlap(self, self.state.enemyGroup, function(player, enemyFromGroup){ // do...
+					self.game.physics.arcade.overlap(self, self.state.enemiesGroup, function(player, enemyFromGroup){ // do...
 						console.log('hit');
 					}, function(player, enemyFromGroup){ // if overlap AND close on Y axis
 						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10);
@@ -100,7 +100,7 @@
 				self.body.setSize(self.width/2, self.height, self.width/2*self.scale.x, 0);
 				self.body.reset(self.x,self.y);
 				if(self.animations.currentAnim._frameIndex >= this.hitBox){
-					self.game.physics.arcade.overlap(self, self.state.enemyGroup, function(player, enemyFromGroup){ // do...
+					self.game.physics.arcade.overlap(self, self.state.enemiesGroup, function(player, enemyFromGroup){ // do...
 						console.log('hit');
 					}, function(player, enemyFromGroup){ // if overlap AND close on Y axis
 						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10);
@@ -115,7 +115,7 @@
 			update: function(){
 				self.body.velocity.x -= 3*self.scale.x;
 				if(self.animations.currentAnim._frameIndex >= this.hitBox){
-					self.game.physics.arcade.overlap(self, self.state.enemyGroup, function(player, enemyFromGroup){ // do...
+					self.game.physics.arcade.overlap(self, self.state.enemieGroup, function(player, enemyFromGroup){ // do...
 						console.log('hit');
 					}, function(player, enemyFromGroup){ // if overlap AND close on Y axis
 						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10);
@@ -269,10 +269,7 @@
 		this.game.add.existing(this);
 
 		//set camera to follow player;
-		game.camera.follow(this);
-		//DEBUG ONLY
-		window.body = this.body;
-		window.player = this;
+		this.game.camera.follow(this);
 	}
 	Player.prototype = Object.create(Phaser.Sprite.prototype);
 	Player.prototype.constructor = Player;

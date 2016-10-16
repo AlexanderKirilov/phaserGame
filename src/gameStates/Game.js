@@ -24,15 +24,19 @@
 
 		    this.stageManager;
 		    this.enemyGroup;  // an array representing the current active (engaged) enemys;
-		    window.game = game;
+		    this.entities;
+
+
 		}
 		Game.prototype.create = function(){
 	        this.game.debug.context.fillStyle = 'rgba(255,0,0,0.6)';
 			//disable smoothing for pixel art
 			this.game.stage.smoothed = false;
 			this.game.renderer.renderSession.roundPixels = true;
+
+			this.rootGroup = new RenderGroup(this.game, undefined, 'rootDisplayGroup', false);
 			//add level background
-			var levelBg = this.game.add.sprite(0, 0, 'bg');
+			var levelBg = this.rootGroup.create(0, 0, 'bg');
 			//set the stage to
 			//initiate world
 			this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -42,55 +46,65 @@
 			/* Background level animations */
 			// fire animation (560, 120)
 			this.fire = new Fire (this.game, 560, 120);
-			//
 			//Left gang animation
-			var leftGang = game.add.sprite (490, 86, 'left_gang');
+			var leftGang = this.game.add.sprite(490, 86, 'left_gang');
 			leftGang.animations.add('stay');
 			leftGang.animations.play('stay', 2, true);
 			//
 			//Right gang animation
-			var rightGang = game.add.sprite (591, 78, 'right_gang');
+			var rightGang =	this.game.add.sprite (591, 78, 'right_gang');
 			rightGang.animations.add('stay');
 			rightGang.animations.play('stay', 2, true);
-
-			
 
 			// create final  boss (Abbobo)
 			//this.abbo = new Abbo(this.game, 1300, 200);
 
 			//create player
-			this.player = new Player(this, 40, 180); 
-		
+			this.player = new Player(this, 40, 180);
+			this.rootGroup.add(this.player);
+			
 			//set the camera follow to be more beat em up style;
 			var camDeadzoneWidth = Math.floor((gameConfig.gameWidth*3)/4 - this.player.width/2);
 			this.game.camera.deadzone = new Phaser.Rectangle(0, 0, camDeadzoneWidth, gameConfig.gameHeight);
-			this.enemyGroup = new Phaser.Group(game, null,'simpleEnemyGroup', true, true, Phaser.Physics.ARCADE);
+
+			//the enemiesGroup PARENT group that the level's stages are gona use to spawn enemies and check collision shared for the player's collision
+			//currently flushed on stage advance
+			this.enemiesGroup = this.game.add.group(this.rootGroup, 'simpleEnemyGroup', false);
+
 			var self = this;
 			this.stageManager = new StageManager(this);
 			this.stageManager.add({
 				boundRight: 400,
 				enter:function(){
-					this.enemyGroup.add(new Enemy(self.game,160, 210));
-					this.enemyGroup.add(new Enemy(self.game,150, 200));
+					this.enemiesGroup.add(new Enemy(self.game, 150, 200));
+					this.enemiesGroup.add(new Enemy(self.game, 160, 230));
 				},
 				update:function(){
-					this.enemyGroup.forEachAlive(function(enemy){
+					this.enemiesGroup.forEachExists(function(enemy){
 						enemy.update();
 					}, this);
 				},
 				exit:function(){
-					this.enemyGroup.removeAll();
+					this.enemiesGroup.removeAll();
 				}
-			});
+			}, this.enemiesGroup);
 			this.stageManager.start();
+
+			//DEBUG ONLY
+			window.body = this.player.body;
+			window.player = this.player;
+		    window.game = this.game;
+		    window.state = this;
 		};
 		Game.prototype.update = function(){
 			this.player.update();
 			//update stage
 			this.stageManager.update();
 			//this.abbo.update();
-			
-			this.enemyGroup.sort('y',  Phaser.Group.SORT_ASCENDING);
+			this.sort();	
+		};
+		Game.prototype.sort = function(){
+			this.rootGroup.sort('y');
 		};
 		Game.prototype.render = function(){
 	        /* show the camera deadzone
