@@ -6,34 +6,28 @@ var StageManager = (function(){
 		this.game = gameState.game;
 	}
 
-	StageManager.prototype.add = function(stage, enemiesGroup){
+	StageManager.prototype.add = function(stage){
 		//add the stage
-		//limit stage camera
-		if(stage.boundRight){
-			this.game.camera.bounds.width = stage.boundRight;
-		}
-		//attach the global enemyGroup
-		if(enemiesGroup){
-			stage.enemiesGroup = enemiesGroup;
-		}
 		this.stages.push(stage);
 	};
 	StageManager.prototype.update = function(){
-		var currStage = this.stages[this.currStage];
-		if(currStage.update){
-			currStage.update();
-		}
+		this.stages[this.currStage].update();
 	};
 	StageManager.prototype.advanceStage = function(){
+		var stage = this.stages[this.currStage];
 		//call exit
-		if(this.stages[this.currStage].exit){
-			this.stages[this.currStage].exit();		
+		if(stage.exit){
+			stage.exit();		
 		}
 		//advance
 		this.currStage++;
 		//call enter
-		if(this.stages[this.currStage].enter){
-			this.stages[this.currStage].enter();
+		//limit stage camera
+		if(stage.boundRight){
+			this.game.camera.bounds.width = stage.boundRight;
+		}
+		if(stage.enter){
+			stage.enter();
 		}
 	};
 	StageManager.prototype.start = function(){

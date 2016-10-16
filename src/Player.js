@@ -65,7 +65,7 @@
 				self.body.reset(self.x,self.y);
 				if(self.animations.currentAnim._frameIndex >= this.hitBox){
 					self.game.physics.arcade.overlap(self, self.state.enemiesGroup, function(player, enemyFromGroup){ // do...
-						console.log('hit');
+						enemyFromGroup.registerHit();
 					}, function(player, enemyFromGroup){ // if overlap AND close on Y axis
 						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10);
 					});

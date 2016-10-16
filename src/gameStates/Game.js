@@ -19,12 +19,11 @@
 		    this.rnd;       //  the repeatable random number generator (Phaser.RandomDataGenerator)
 
 		    this.player;
-		    this.enemy;
 		    this.abbo;
 
+		    this.rootGroup;
 		    this.stageManager;
-		    this.enemyGroup;  // an array representing the current active (engaged) enemys;
-		    this.entities;
+		    this.enemiesGroup;  // an array representing the current active (engaged) enemys;
 
 
 		}
@@ -34,25 +33,27 @@
 			this.game.stage.smoothed = false;
 			this.game.renderer.renderSession.roundPixels = true;
 
+			this.levelBackgroundGroup = this.game.add.group(undefined, 'levelBackgroundGroup', false);
 			this.rootGroup = new RenderGroup(this.game, undefined, 'rootDisplayGroup', false);
-			//add level background
-			var levelBg = this.rootGroup.create(0, 0, 'bg');
 			//set the stage to
 			//initiate world
 			this.game.physics.startSystem(Phaser.Physics.ARCADE);
-			this.game.world.setBounds(0, 0, levelBg.width, levelBg.height);
 			this.game.time.advancedTiming = true;
+
+			//add level background
+			var levelBg = this.levelBackgroundGroup.create(0, 0, 'bg');
+			this.game.world.setBounds(0, 0, levelBg.width, levelBg.height);
 			
 			/* Background level animations */
 			// fire animation (560, 120)
 			this.fire = new Fire (this.game, 560, 120);
 			//Left gang animation
-			var leftGang = this.game.add.sprite(490, 86, 'left_gang');
+			var leftGang = this.levelBackgroundGroup.create(490, 86, 'left_gang');
 			leftGang.animations.add('stay');
 			leftGang.animations.play('stay', 2, true);
 			//
 			//Right gang animation
-			var rightGang =	this.game.add.sprite (591, 78, 'right_gang');
+			var rightGang =	this.levelBackgroundGroup.create(591, 78, 'right_gang');
 			rightGang.animations.add('stay');
 			rightGang.animations.play('stay', 2, true);
 
@@ -71,23 +72,23 @@
 			//currently flushed on stage advance
 			this.enemiesGroup = this.game.add.group(this.rootGroup, 'simpleEnemyGroup', false);
 
-			var self = this;
 			this.stageManager = new StageManager(this);
+			var self = this;
 			this.stageManager.add({
-				boundRight: 400,
+				boundRight: 800,
 				enter:function(){
-					this.enemiesGroup.add(new Enemy(self.game, 150, 200));
-					this.enemiesGroup.add(new Enemy(self.game, 160, 230));
+					self.enemiesGroup.add(new Enemy(self.game, 150, 200));
+					self.enemiesGroup.add(new Enemy(self.game, 160, 230));
 				},
 				update:function(){
-					this.enemiesGroup.forEachExists(function(enemy){
+					self.enemiesGroup.forEachExists(function(enemy){
 						enemy.update();
 					}, this);
 				},
 				exit:function(){
-					this.enemiesGroup.removeAll();
+					self.enemiesGroup.removeAll();
 				}
-			}, this.enemiesGroup);
+			});
 			this.stageManager.start();
 
 			//DEBUG ONLY
@@ -101,9 +102,7 @@
 			//update stage
 			this.stageManager.update();
 			//this.abbo.update();
-			this.sort();	
-		};
-		Game.prototype.sort = function(){
+			
 			this.rootGroup.sort('y');
 		};
 		Game.prototype.render = function(){
