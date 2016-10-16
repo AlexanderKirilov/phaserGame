@@ -1,19 +1,19 @@
-var Player = (function(){
-	function Player(game, x, y){
-		Phaser.Sprite.call(this, game, x, y,'billy_sheet');
+ var Player = (function(){
+	function Player(state, x, y){
+		Phaser.Sprite.call(this, state.game, x, y,'billy_sheet');
+		this.state = state;
 
-		game.physics.arcade.enable(this);
+		this.game.physics.arcade.enable(this);
 		this.playerDeltaJumpVelocity = 280;
 		this.playerDeltaVelocity = 85;
 
-		this.body.mass = 50;
 		// 0.001 * pxPerSecond;
 		//this.multiplier = 0.001 * this.playerDeltaJumpVelocity;
 		//this.scale.setTo(1.1, 1.1);
 		this.anchor.setTo(0.5,1);
 		//define player's input keys
 		this.jumpKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-		this.punchKey = game.input.keyboard.addKey(Phaser.Keyboard.F);
+		this.punchKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
 		this.cursors = game.input.keyboard.createCursorKeys();
 		
 		//define player's animations
@@ -21,19 +21,107 @@ var Player = (function(){
 		//this.animations.add('jump', Phaser.Animation.generateFrameNames('jump/', 0, 4, '', 1), 8, false);
 		this.animations.add('walk', Phaser.Animation.generateFrameNames('walk_forward/', 0, 5, '', 1), 8, true);
 		this.animations.add('run', Phaser.Animation.generateFrameNames('run/', 0, 5, '', 1), 8, true);
-		this.animations.add('punch', Phaser.Animation.generateFrameNames('punch_left/', 1, 5, '', 1), 7, false);
+		this.animations.add('punchLeft', Phaser.Animation.generateFrameNames('punch_left/', 1, 5, '', 1), 7, false);
 		this.animations.add('punchRight', Phaser.Animation.generateFrameNames('punch_right/', 1, 5, '', 1), 7, false);
+		this.animations.add('runPunch', Phaser.Animation.generateFrameNames('run_punch/', 0, 3, '', 1), 7, false);
+		this.animations.add('landTrans', Phaser.Animation.generateFrameNames('land_trans/', 0, 1, '', 1), 6, false);
 
 		//Define player's states
 		var self = this;
 		this.stateMachine = new StateMachine(this, {debug:true});
 		this.stateMachine.add('idle', {
 			enter: function(){
-				self.body.velocity.setTo(0,0);
 				self.body.setSize(self.width*self.scale.x, self.height);
 				self.body.reset(self.x,self.y);
 			},
 			update: function(){},
+			exit: function(){}
+		});
+		this.stateMachine.add('punchLeft', {
+			movementBreakpointFrameId:1,
+			punchBreakpointFrameId:3,
+			hitBox:1,
+			enter: function(){
+				self.punchKey.reset(false);
+
+				this.nextPunch = false;
+			},
+			handleInput: function(){
+				if(self.punchKey._justDown){
+					this.nextPunch = true;
+					self.punchKey.reset(false);
+				}
+				if(self.animations.currentAnim._frameIndex >= this.punchBreakpointFrameId && this.nextPunch){
+					self.stateMachine.doTransition('punchRight');
+				}
+				if(self.animations.currentAnim._frameIndex >= this.movementBreakpointFrameId){
+					if(self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown){
+						self.stateMachine.doTransition('walk');
+					}
+				}
+			},
+			update: function(){
+				self.body.setSize(self.width/2, self.height, self.width/2*self.scale.x, 0);
+				self.body.reset(self.x,self.y);
+				if(self.animations.currentAnim._frameIndex >= this.hitBox){
+					self.game.physics.arcade.overlap(self, self.state.enemyGroup, function(player, enemyFromGroup){ // do...
+						console.log('hit');
+					}, function(player, enemyFromGroup){ // if overlap AND close on Y axis
+						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10);
+					});
+				}
+			},
+			exit: function(){}
+		});
+		this.stateMachine.add('punchRight', {
+			movementBreakpointFrameId:1,
+			punchBreakpointFrameId:3,
+			hitBox:1,
+			enter: function(){
+				self.punchKey.reset(false);
+
+				this.nextPunch = false;
+			},
+			handleInput: function(){
+				if(self.punchKey._justDown){
+					this.nextPunch = true;
+					self.punchKey.reset(false);
+				}
+				if(self.animations.currentAnim._frameIndex >= this.punchBreakpointFrameId && this.nextPunch){
+					self.stateMachine.doTransition('punchLeft');
+				}
+				if(self.animations.currentAnim._frameIndex >= this.movementBreakpointFrameId){
+					if(self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown){
+						self.stateMachine.doTransition('walk');
+					}
+				}
+			},
+			update: function(){
+				self.body.setSize(self.width/2, self.height, self.width/2*self.scale.x, 0);
+				self.body.reset(self.x,self.y);
+				if(self.animations.currentAnim._frameIndex >= this.hitBox){
+					self.game.physics.arcade.overlap(self, self.state.enemyGroup, function(player, enemyFromGroup){ // do...
+						console.log('hit');
+					}, function(player, enemyFromGroup){ // if overlap AND close on Y axis
+						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10);
+					});
+				}
+			},
+			exit: function(){}
+		});
+		this.stateMachine.add('runPunch', {
+			hitBox:0,
+			enter: function(){},
+			update: function(){
+				self.body.velocity.x -= 3*self.scale.x;
+				if(self.animations.currentAnim._frameIndex >= this.hitBox){
+					self.game.physics.arcade.overlap(self, self.state.enemyGroup, function(player, enemyFromGroup){ // do...
+						console.log('hit');
+					}, function(player, enemyFromGroup){ // if overlap AND close on Y axis
+						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10);
+					});
+				}
+			},
 			exit: function(){}
 		});
 		this.stateMachine.add('jump', {
@@ -58,55 +146,12 @@ var Player = (function(){
 				}
 				if(self.y >= this.startY){
 					self.y = this.startY;
-					self.stateMachine.doTransition('idle'); //force transition
+					self.stateMachine.doTransition('idle', 'landTrans'); //force transition
 				}
-			
 			},
 			exit: function(){
 				self.body.velocity.y = 0;
 				self.body.gravity.y = 0;
-			}
-		});
-		this.stateMachine.add('punch', {
-			movementBreakpointFrameId:1,
-			punchBreakpointFrameId:3,
-			punchCount: 0,
-			enter: function(){
-				self.body.velocity.setTo(0,0);
-				self.punchKey.reset(false);
-			},
-			handleInput: function(){
-				if(self.punchKey._justDown){
-					this.nextPunch = true;
-					if(this.punchCount < 1){
-						this.punchCount++;
-					}else{
-						this.punchCount = 0;
-					}
-					self.punchKey.reset(false);
-				}
-				if(self.animations.currentAnim._frameIndex >= this.punchBreakpointFrameId && this.nextPunch){
-					switch(this.punchCount){
-						case 0:
-							self.animations.play('punch');
-							break;
-						case 1:
-							self.animations.play('punchRight');
-							break;
-					}
-					this.nextPunch = false;
-				}
-				if(self.animations.currentAnim._frameIndex >= this.movementBreakpointFrameId){
-					if(self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown){
-						self.stateMachine.doTransition('walk');
-					}
-				}
-			},
-			update: function(){
-				self.body.setSize(self.width/2, self.height, self.width/2*self.scale.x, 0);
-				self.body.reset(self.x,self.y);
-			},
-			exit: function(){
 			}
 		});
 		this.stateMachine.add('walk', {
@@ -132,14 +177,9 @@ var Player = (function(){
 					this.lastPress = initialKeyDownTime;
 				}
 			},
-			handleInput: function(){
-				if(self.punchKey.downDuration(100)){
-					self.stateMachine.doTransition('punch');
-				}
-			},
 			update: function(){
 				self.body.velocity.setTo(0,0);
-				if(self.cursors.right.isDown){
+				if(self.cursors.right.isDown && (self.right<self.game.camera.bounds.width)){
 					self.scale.x = 1;
 					self.body.velocity.x = self.playerDeltaVelocity;
 					self.body.setSize(self.width, self.height);
@@ -162,13 +202,11 @@ var Player = (function(){
 					}
 				}
 			},
-			exit: function(){
-				//  Reset the players velocity (movement)
-			}
+			exit: function(){}
 		});
 		this.stateMachine.add('run', {
 			enter: function(){
-				self.body.setSize(self.width*self.scale.x, self.height);
+				//self.body.setSize(self.width*self.scale.x, self.height);
 				self.body.reset(self.x, self.y);
 				if(self.cursors.left.isDown){
 					self.body.velocity.x = -(2*self.playerDeltaVelocity);
@@ -177,6 +215,9 @@ var Player = (function(){
 				}
 			},
 			update: function(){
+				if(self.right>self.game.camera.bounds.width){
+					self.body.velocity.x = 0;
+				}
 			},
 			exit: function(){
 			}
@@ -185,8 +226,8 @@ var Player = (function(){
 		this.stateMachine.transition('', 'idle', 'walk', function(){
 			return (self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown);
 		});	
-		this.stateMachine.transition('', 'walk', 'idle', function(){
-			return(!(self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown));
+		this.stateMachine.transition('', 'idle', 'punchLeft', function(){
+			return(self.punchKey.downDuration(30));
 		});
 		this.stateMachine.transition('', 'idle', 'jump', function(){
 			return(self.jumpKey.downDuration(20));
@@ -195,17 +236,29 @@ var Player = (function(){
 		this.stateMachine.transition('', 'run', 'idle', function(){
 			return(!(self.cursors.left.isDown || self.cursors.right.isDown));
 		});
+		this.stateMachine.transition('', 'run', 'jump', function(){
+			return(self.jumpKey.downDuration(30));
+		});
+		this.stateMachine.transition('', 'run', 'runPunch', function(){
+			return(self.punchKey.downDuration(30));
+		});
 		//walk/idle -> run is done manually
-		/*this.stateMachine.transition('', 'walk', 'punchLeft', function(){
-			return(self.punchKey.downDuration(200));
-		});*/
+		this.stateMachine.transition('', 'walk', 'idle', function(){
+			return(!(self.cursors.down.isDown || self.cursors.up.isDown || self.cursors.left.isDown || self.cursors.right.isDown));
+		});
+		this.stateMachine.transition('', 'walk', 'punchLeft', function(){
+			return(self.punchKey.downDuration(30));
+		});
 		this.stateMachine.transition('', 'walk', 'jump', function(){
 			return(self.jumpKey.downDuration(20));
 		});
-		this.stateMachine.transition('', 'idle', 'punch', function(){
-			return(self.punchKey.downDuration(200));
+		this.stateMachine.transition('', 'runPunch', 'idle', function(){
+			return(!self.animations.currentAnim.isPlaying);
 		});
-		this.stateMachine.transition('', 'punch', 'idle', function(){
+		this.stateMachine.transition('', 'punchLeft', 'idle', function(){
+			return(!self.animations.currentAnim.isPlaying);
+		});
+		this.stateMachine.transition('', 'punchRight', 'idle', function(){
 			return(!self.animations.currentAnim.isPlaying);
 		});
 		this.animations.play(this.stateMachine.initialState);

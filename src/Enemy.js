@@ -19,7 +19,7 @@ var Enemy = (function(){
 	
 	
 	Enemy.prototype.update = function() {
-		this.animations.play('idle');		
+		this.animations.play('idle');
 	}
 	return Enemy;
 })();

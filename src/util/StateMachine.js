@@ -55,6 +55,8 @@ StateMachine.prototype.update = function(){
 	if( this.lastTransition && 
 	(this.entity.animations.currentAnim.name == this.lastTransition.name && this.entity.animations.currentAnim.isPlaying)){
 		return;
+	}else{
+		this.lastTransition = undefined;
 	}
 	//initialState
 	if(!this.currentState){
@@ -107,10 +109,15 @@ StateMachine.prototype.update = function(){
 		}
 	}
 };
-StateMachine.prototype.doTransition = function(toState){
+StateMachine.prototype.doTransition = function(toState, transAnimation){
 	var state = this.states[this.currentState];
 	if(state.exit){
 		state.exit();
+	}
+	if(transAnimation){
+		this.entity.animations.play(transAnimation);
+		this.lastTransition = {};
+		this.lastTransition.name = transAnimation;
 	}
 	this.currentState = toState;
 };

@@ -19,8 +19,11 @@
 		    this.rnd;       //  the repeatable random number generator (Phaser.RandomDataGenerator)
 
 		    this.player;
+		    this.enemy;
 		    this.abbo;
 
+		    this.stageManager;
+		    this.enemyGroup;  // an array representing the current active (engaged) enemys;
 		    window.game = game;
 		}
 		Game.prototype.create = function(){
@@ -30,7 +33,7 @@
 			this.game.renderer.renderSession.roundPixels = true;
 			//add level background
 			var levelBg = this.game.add.sprite(0, 0, 'bg');
-
+			//set the stage to
 			//initiate world
 			this.game.physics.startSystem(Phaser.Physics.ARCADE);
 			this.game.world.setBounds(0, 0, levelBg.width, levelBg.height);
@@ -51,32 +54,43 @@
 			rightGang.animations.play('stay', 2, true);
 
 			
+
 			// create final  boss (Abbobo)
-			this.abbo = new Abbo(this.game, 1300, 200);
+			//this.abbo = new Abbo(this.game, 1300, 200);
 
 			//create player
-			this.player = new Player(this.game, 40, 180);
-			
-			// define enemy spawn positions			
-			var enemyX;
-			var enemyY;
-			
-			// spawn first group of enemies
-			for (var i = 0; i < 4; i++) {
-				enemyX = Math.floor(50 + Math.random() * 500);
-				enemyY = Math.floor(174 + Math.random() * 65);
-				this.enemy = new Enemy(this.game, enemyX, enemyY);
-			}
-			
-
+			this.player = new Player(this, 40, 180); 
+		
 			//set the camera follow to be more beat em up style;
 			var camDeadzoneWidth = Math.floor((gameConfig.gameWidth*3)/4 - this.player.width/2);
 			this.game.camera.deadzone = new Phaser.Rectangle(0, 0, camDeadzoneWidth, gameConfig.gameHeight);
+			this.enemyGroup = new Phaser.Group(game, null,'simpleEnemyGroup', true, true, Phaser.Physics.ARCADE);
+			var self = this;
+			this.stageManager = new StageManager(this);
+			this.stageManager.add({
+				boundRight: 400,
+				enter:function(){
+					this.enemyGroup.add(new Enemy(self.game,160, 210));
+					this.enemyGroup.add(new Enemy(self.game,150, 200));
+				},
+				update:function(){
+					this.enemyGroup.forEachAlive(function(enemy){
+						enemy.update();
+					}, this);
+				},
+				exit:function(){
+					this.enemyGroup.removeAll();
+				}
+			});
+			this.stageManager.start();
 		};
 		Game.prototype.update = function(){
 			this.player.update();
-			this.abbo.update();
-			this.enemy.update();
+			//update stage
+			this.stageManager.update();
+			//this.abbo.update();
+			
+			this.enemyGroup.sort('y',  Phaser.Group.SORT_ASCENDING);
 		};
 		Game.prototype.render = function(){
 	        /* show the camera deadzone
