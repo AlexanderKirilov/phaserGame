@@ -73,7 +73,7 @@ StateMachine.prototype.update = function(){
 		}
 		//change sprite animation
 		if(this.opts.debug){
-			console.info('Playing state animation: ' + state.animationName);
+			console.info('Playing state animation: ' + state.animationName + " from: " + this.entity.key);
 		}
 		this.entity.animations.play(state.animationName);
 		//a callback after changing animation

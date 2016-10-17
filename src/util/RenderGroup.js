@@ -2,8 +2,6 @@ var RenderGroup = (function(){
 
 	/**
 	 * Renders the given display objects using the given render session.
-	 * @param {Array} displayObjects
-	 * @param {Object} renderSession
 	 */
 	function renderDisplayObjects(displayObjects, renderSession) {
 		for (let i = 0; i < displayObjects.length; i++) {
@@ -13,8 +11,6 @@ var RenderGroup = (function(){
 
 	/**
 	 * Returns all the children for the given group recursively.
-	 * @param {Phaser.Group} group
-	 * @returns {Array}
 	 */
 	function getChildrenRecursive(group) {
 		var children = [];
@@ -30,10 +26,8 @@ var RenderGroup = (function(){
 		return children;
 	}
 
-	/**
-	 * Custom Phaser Group that allows for sorting all of it's children recursively.
-	 * Inspired by the research by Krummelz (http://www.html5gamedevs.com/profile/7879-krummelz/).
-	 * @see http://www.html5gamedevs.com/topic/3085-depth-sort-multiple-groups/
+	/* Custom Phaser Group that allows for sorting all of it's children recursively.
+	 * http://www.html5gamedevs.com/topic/3085-depth-sort-multiple-groups/
 	 */
 	function RenderGroup(game, parent, name, addToStage){
 		this.game = game;
@@ -44,9 +38,6 @@ var RenderGroup = (function(){
 	RenderGroup.prototype = Object.create(Phaser.Group.prototype);
 	RenderGroup.prototype.constructor = RenderGroup;
   
-	/**
-	* @inheritdoc
-	*/
 	RenderGroup.prototype._renderWebGL = function(renderSession) {
 		if (!this.visible || this.alpha <= 0) {
 			return;
@@ -87,9 +78,6 @@ var RenderGroup = (function(){
 		}
 	}
 
-	/**
-	* @inheritdoc
-	*/
 	RenderGroup.prototype.sort = function(index, order) {
 		if(this.children.length < 2){
 			return;

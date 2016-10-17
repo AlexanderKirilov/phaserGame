@@ -46,7 +46,7 @@
 			
 			/* Background level animations */
 			// fire animation (560, 120)
-			this.fire = new Fire (this.game, 560, 120);
+			this.levelBackgroundGroup.add(new Fire (this.game, 560, 120));
 			//Left gang animation
 			var leftGang = this.levelBackgroundGroup.create(490, 86, 'left_gang');
 			leftGang.animations.add('stay');
@@ -77,8 +77,8 @@
 			this.stageManager.add({
 				boundRight: 800,
 				enter:function(){
-					self.enemiesGroup.add(new Enemy(self.game, 150, 200));
-					self.enemiesGroup.add(new Enemy(self.game, 160, 230));
+					//self.enemiesGroup.add(new Enemy(self, 150, 200));
+					self.enemiesGroup.add(new EnemyFrank(self, 160, 230));
 				},
 				update:function(){
 					self.enemiesGroup.forEachExists(function(enemy){
@@ -104,6 +104,8 @@
 			//this.abbo.update();
 			
 			this.rootGroup.sort('y');
+
+			this.cleanUp(); // handle proper sprite cleanUp on .kill() http://davidp.net/phaser-sprite-destroy/
 		};
 		Game.prototype.render = function(){
 	        /* show the camera deadzone
@@ -131,6 +133,20 @@
     	Game.prototype.quitGame = function(pointer){
     		this.state.start('MainMenu');
     	};
+    	Game.prototype.cleanUp = function(){
+			var aCleanup = [];
+			this.enemiesGroup.forEachDead(function(item){
+			    aCleanup.push(item);
+			});
+
+			var i = aCleanup.length - 1;
+			while(i > -1)
+			{
+			    var getitem = aCleanup[i];
+			    getitem.destroy();
+			    i--;
+			}
+		}
 		return Game;
 	})();
 	GameState.Game = Game;

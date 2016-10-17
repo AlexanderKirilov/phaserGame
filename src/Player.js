@@ -6,6 +6,7 @@
 		this.game.physics.arcade.enable(this);
 		this.playerDeltaJumpVelocity = 280;
 		this.playerDeltaVelocity = 85;
+		this.health = 5;
 
 		// 0.001 * pxPerSecond;
 		//this.multiplier = 0.001 * this.playerDeltaJumpVelocity;
@@ -45,6 +46,7 @@
 				self.punchKey.reset(false);
 
 				this.nextPunch = false;
+				this.enemiesPunched = []; // keep a refference for who you hit
 			},
 			handleInput: function(){
 				if(self.punchKey._justDown){
@@ -64,10 +66,13 @@
 				self.body.setSize(self.width/2, self.height, self.width/2*self.scale.x, 0);
 				self.body.reset(self.x,self.y);
 				if(self.animations.currentAnim._frameIndex >= this.hitBox){
-					self.game.physics.arcade.overlap(self, self.state.enemiesGroup, function(player, enemyFromGroup){ // do...
+					var currState = this; // refference hell keep track for V
+					self.game.physics.arcade.collide(self, self.state.enemiesGroup, function(player, enemyFromGroup){ // do...
 						enemyFromGroup.registerHit();
+						currState.enemiesPunched.push(enemyFromGroup);
 					}, function(player, enemyFromGroup){ // if overlap AND close on Y axis
-						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10);
+						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10 
+							&& !currState.enemiesPunched.includes(enemyFromGroup));
 					});
 				}
 			},
@@ -81,6 +86,7 @@
 				self.punchKey.reset(false);
 
 				this.nextPunch = false;
+				this.enemiesPunched = []; // keep a refference for who you hit
 			},
 			handleInput: function(){
 				if(self.punchKey._justDown){
@@ -100,10 +106,13 @@
 				self.body.setSize(self.width/2, self.height, self.width/2*self.scale.x, 0);
 				self.body.reset(self.x,self.y);
 				if(self.animations.currentAnim._frameIndex >= this.hitBox){
-					self.game.physics.arcade.overlap(self, self.state.enemiesGroup, function(player, enemyFromGroup){ // do...
-						console.log('hit');
-					}, function(player, enemyFromGroup){ // if overlap AND close on Y axis
-						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10);
+					var currState = this; // refference hell keep track for V
+					self.game.physics.arcade.collide(self, self.state.enemiesGroup, function(player, enemyFromGroup){ // do...
+						enemyFromGroup.registerHit();
+						currState.enemiesPunched.push(enemyFromGroup);
+					}, function(player, enemyFromGroup){ // if overlap AND close on Y axis AND have not hit the enemy this state
+						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10
+							&& !currState.enemiesPunched.includes(enemyFromGroup));
 					});
 				}
 			},
@@ -111,14 +120,23 @@
 		});
 		this.stateMachine.add('runPunch', {
 			hitBox:0,
-			enter: function(){},
+			enter: function(){
+				this.enemiesPunched = []; // keep a refference for who you hit
+				var tempVelocity = self.body.velocity.x;
+				self.body.setSize(self.width*self.scale.x, self.height, 0, 0);
+				self.body.reset(self.x,self.y);
+				self.body.velocity.x = tempVelocity;
+			},
 			update: function(){
-				self.body.velocity.x -= 3*self.scale.x;
+				self.body.velocity.x -= self.scale.x*2;
 				if(self.animations.currentAnim._frameIndex >= this.hitBox){
-					self.game.physics.arcade.overlap(self, self.state.enemieGroup, function(player, enemyFromGroup){ // do...
-						console.log('hit');
+					var currState = this; // refference hell keep track for V
+					self.game.physics.arcade.collide(self, self.state.enemieGroup, function(player, enemyFromGroup){ // do...
+						enemyFromGroup.registerHit();
+						currState.enemiesPunched.push(enemyFromGroup);
 					}, function(player, enemyFromGroup){ // if overlap AND close on Y axis
-						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10);
+						return (self.bottom > enemyFromGroup.bottom-10 && self.bottom < enemyFromGroup.bottom+10
+							&& !currState.enemiesPunched.includes(enemyFromGroup));
 					});
 				}
 			},
@@ -135,6 +153,7 @@
 				self.body.gravity.y = 530;
 			},
 			update: function(){
+
 				//for frame reference
 				var currJumpHeight = this.startY - self.y;
 				if(currJumpHeight > 55){
@@ -152,6 +171,7 @@
 			exit: function(){
 				self.body.velocity.y = 0;
 				self.body.gravity.y = 0;
+				self.body.drag = -200;
 			}
 		});
 		this.stateMachine.add('walk', {
@@ -190,8 +210,8 @@
 					self.body.setSize(self.width*self.scale.x, self.height);
 				}
 				if(self.cursors.up.isDown){
-					if(self.body.y <= 105){
-						self.body.y = 105;
+					if(self.y <= 180){
+						self.y = 180;
 					}else{
 						self.body.velocity.y = -self.playerDeltaVelocity;
 					}
@@ -206,7 +226,7 @@
 		});
 		this.stateMachine.add('run', {
 			enter: function(){
-				//self.body.setSize(self.width*self.scale.x, self.height);
+				self.body.setSize(self.width*self.scale.x, self.height);
 				self.body.reset(self.x, self.y);
 				if(self.cursors.left.isDown){
 					self.body.velocity.x = -(2*self.playerDeltaVelocity);
@@ -221,6 +241,15 @@
 			},
 			exit: function(){
 			}
+		});
+		this.stateMachine.add('knocked',{
+			enter:function(){
+				self.body.velocity.setTo(0,0);
+			},
+			update:function(){
+				self.frameName = 'knocked';
+			},
+			exit:function(){}
 		})
 		//define player's transitions between states
 		this.stateMachine.transition('', 'idle', 'walk', function(){
@@ -261,6 +290,9 @@
 		this.stateMachine.transition('', 'punchRight', 'idle', function(){
 			return(!self.animations.currentAnim.isPlaying);
 		});
+		this.stateMachine.transition('', 'knocked', 'idle', function(){
+			return(new Date().getTime() - self.stateMachine.timer.getTime() > 500);
+		});
 		this.animations.play(this.stateMachine.initialState);
 
 		//limit player
@@ -274,6 +306,16 @@
 	Player.prototype = Object.create(Phaser.Sprite.prototype);
 	Player.prototype.constructor = Player;
 
+	Player.prototype.registerHit = function(){
+		if(!this.health){
+			return
+		}
+		this.health--;
+		if(this.stateMachine.currentState == 'knocked'){
+		}else{
+			this.stateMachine.doTransition('knocked');
+		}
+	};
 	Player.prototype.update = function(){
 		this.stateMachine.update();
 	};

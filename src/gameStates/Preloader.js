@@ -31,6 +31,9 @@
 			this.load.atlasJSONArray('billy_sheet', 'assets/player/billy_sprite.png', 'assets/player/billy_sprite.json');
 			//enemy
 			this.load.atlasJSONArray('enemy_sheet', 'assets/Enemy/enemy_idle.png', 'assets/Enemy/enemy_idle.json');
+			
+			this.load.atlasJSONArray('frank_sheet', 'assets/EnemyFrank/frank_sprite.png', 'assets/EnemyFrank/frank_sprite.json');
+			this.load.atlasJSONArray('william_sheet', 'assets/EnemyWilliam/william_sprite.png', 'assets/EnemyWilliam/william_sprite.json');
 			this.load.atlasJSONArray('abbo_sheet', 'assets/Abbobo/Abbobo_sprites.png', 'assets/Abbobo/Abbobo_sprites.json');
 			
 			//this.load.audio('titleMusic', ['audio/main_menu.mp3']);
