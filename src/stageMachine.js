@@ -6,6 +6,7 @@ var StageMachine = (function(){
 
 		this.initialStage = null
 		this.game = gameState.game;
+		this.enemiesGroup = gameState.enemiesGroup;
 	}
 
 	StageMachine.prototype.add = function(stage){
@@ -22,6 +23,9 @@ var StageMachine = (function(){
 			stage.exit();		
 		}
 		//advance
+		if(this.currStage >= this.stages.length){
+			return;
+		}
 		this.currStage++;
 
 		stage = this.stages[this.currStage];
@@ -45,7 +49,7 @@ var StageMachine = (function(){
 
 		if(stage.enter){
 			stage.enter();
-		}	
+		}
 	}
 	return StageMachine; 
 })();

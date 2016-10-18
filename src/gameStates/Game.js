@@ -77,10 +77,13 @@
 			this.StageMachine.add({
 				boundRight: 400,
 				enter:function(){
-					//self.enemiesGroup.add(new Enemy(self, 150, 200));
-					self.enemiesGroup.add(new EnemyFrank(self, 160, 230));
+					self.enemiesGroup.add(new EnemyFrank(self, 400, 200));
+					self.enemiesGroup.add(new EnemyFrank(self, 410, 230));
 				},
 				update:function(){
+					if(!self.enemiesGroup.length){
+						self.StageMachine.advanceStage();
+					}
 					self.enemiesGroup.forEachExists(function(enemy){
 						enemy.update();
 					}, this);
@@ -89,6 +92,33 @@
 					self.enemiesGroup.removeAll();
 				}
 			});
+			this.StageMachine.add({
+				boundRight: 1065,
+				enter:function(){
+					this.activateStage = false;
+
+					self.enemiesGroup.add(new EnemyFrank(self, 800,0));
+					self.enemiesGroup.add(new EnemyFrank(self, 910,0));
+					self.enemiesGroup.forEach(function(child){
+						child.exists = false;
+					});
+				},
+				update:function(){
+					if(self.player.x > 880){
+						this.activateStage = true;
+					}
+					if(this.activateStage === true){
+						self.enemiesGroup.forEach(function(child){
+							child.exists = true;
+						});
+
+						this.activateStage = false;
+					}
+				},
+				exit:function(){
+
+				}
+			})
 			this.StageMachine.start();
 
 			//DEBUG ONLY

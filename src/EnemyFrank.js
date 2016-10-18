@@ -164,6 +164,8 @@ var EnemyFrank = (function(){
 			exit: function(){
 				this.bounce = false;
 				self.body.gravity.y = 0;
+
+				this.endTimer = 0;
 			}
 		});
 		this.stateMachine.add('knocked', {
