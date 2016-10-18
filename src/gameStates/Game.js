@@ -22,7 +22,7 @@
 		    this.abbo;
 
 		    this.rootGroup;
-		    this.stageManager;
+		    this.StageMachine;
 		    this.enemiesGroup;  // an array representing the current active (engaged) enemys;
 
 
@@ -72,10 +72,10 @@
 			//currently flushed on stage advance
 			this.enemiesGroup = this.game.add.group(this.rootGroup, 'simpleEnemyGroup', false);
 
-			this.stageManager = new StageManager(this);
+			this.StageMachine = new StageMachine(this);
 			var self = this;
-			this.stageManager.add({
-				boundRight: 800,
+			this.StageMachine.add({
+				boundRight: 400,
 				enter:function(){
 					//self.enemiesGroup.add(new Enemy(self, 150, 200));
 					self.enemiesGroup.add(new EnemyFrank(self, 160, 230));
@@ -89,7 +89,7 @@
 					self.enemiesGroup.removeAll();
 				}
 			});
-			this.stageManager.start();
+			this.StageMachine.start();
 
 			//DEBUG ONLY
 			window.body = this.player.body;
@@ -100,7 +100,7 @@
 		Game.prototype.update = function(){
 			this.player.update();
 			//update stage
-			this.stageManager.update();
+			this.StageMachine.update();
 			//this.abbo.update();
 			
 			this.rootGroup.sort('y');
@@ -120,7 +120,10 @@
 	        */
 
 	        /*  show the player bounding box; */
-	        //this.game.debug.context.fillRect(this.player.body.x, this.player.body.y, this.player.body.width, this.player.body.height);
+	        /*this.enemiesGroup.forEachAlive(function(enemy){
+	        	this.game.debug.context.fillRect(enemy.body.x, enemy.body.y, enemy.body.width, enemy.body.height);
+	        }, this);
+	        *///this.game.debug.context.fillRect(this.player.body.x, this.player.body.y, this.player.body.width, this.player.body.height);
 			//this.game.debug.spriteBounds(this.player);
 			
 			//this.game.debug.spriteInfo(this.player, 32, 32);

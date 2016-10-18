@@ -26,7 +26,7 @@ StateMachine.prototype.add = function(name, state, animationName){
 		}
 	}
 };
-StateMachine.prototype.transition = function(name, fromState, toState, predicate) {
+StateMachine.prototype.transition = function(name, fromState, toState, predicate , predicateContextState /*bool*/) {
 	if (!fromState && !toState && !predicate) {
 		return this.transitions[name];
 	}
@@ -41,12 +41,17 @@ StateMachine.prototype.transition = function(name, fromState, toState, predicate
 	if (!this.states[toState]) {
 		throw new Error('Missing to state: ' + toState);
 	}
+	
 	var transition = {
 		name: name,
 		fromState: fromState,
 		toState: toState,
-		predicate: predicate
+		predicate: predicate,
 	};
+	//bind the state to the predicate
+	if(predicateContextState){
+		transition.predicate = predicate.bind(this.states[fromState]);
+	}
 	this.transitions[name] = transition;
 	return transition;
 };

@@ -20,8 +20,6 @@ var Abbobo = (function(){
           this.exist = true;
           this.alive = true;
          
-         
-         
           this.movementType = null;
           this.minMovementDistanceX = null;
           this.maxMovementDistanceY = null;
@@ -153,3 +151,8 @@ var Abbobo = (function(){
    
     return Abbobo;
 })();
+
+
+function knockedBackAnimation() {	
+
+}
