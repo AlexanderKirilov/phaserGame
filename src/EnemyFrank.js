@@ -54,7 +54,10 @@ var EnemyFrank = (function(){
 			}
 		});
 		this.stateMachine.add('walkTowards', {
-			enter: function(){},
+			enter: function(){
+				self.body.setSize(self.width*self.scale.x, self.height);
+				self.body.reset(self.x,self.y);
+			},
 			update: function(){
 				if(self.playerDistanceX < 0 && self.scale.x > 0){
 					self.scale.x *= -1
@@ -223,7 +226,8 @@ var EnemyFrank = (function(){
 			return(Math.abs(self.playerDistanceX) > self.closestHitRange || Math.abs(self.playerDistanceY) > 8);
 		});
 		this.stateMachine.transition('', 'idle', 'punchLeft', function(){
-			return(Math.abs(self.playerDistanceX) <= self.closestHitRange  && Math.abs(self.playerDistanceY) <= 8 && self.idle === false );
+			return(Math.abs(self.playerDistanceX) <= self.closestHitRange  && Math.abs(self.playerDistanceY) <= 8 
+				&& self.idle === false  && self.player.stateMachine.currentState != 'knocked');
 		});
 		this.stateMachine.transition('', 'punchLeft', 'punchRight', function(){
 			return(!self.animations.currentAnim.isPlaying);

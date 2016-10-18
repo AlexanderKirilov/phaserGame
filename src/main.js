@@ -5,7 +5,8 @@ var DoubleDragon = (function(gameConfig){
     game.state.add('Preloader', GameState.Preloader);
     game.state.add('MainMenu', GameState.MainMenu);
     game.state.add('Game', GameState.Game);
-    
+
+   
     return{
         execute: function(){
             game.state.start('Boot');

@@ -4,7 +4,7 @@ var RenderGroup = (function(){
 	 * Renders the given display objects using the given render session.
 	 */
 	function renderDisplayObjects(displayObjects, renderSession) {
-		for (let i = 0; i < displayObjects.length; i++) {
+		for (var i = 0; i < displayObjects.length; i++) {
 			displayObjects[i]._renderWebGL(renderSession);
 		}
 	}

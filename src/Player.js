@@ -313,7 +313,7 @@
 	Player.prototype.registerHit = function(enemyScaleX){
 		//face the hitting enemy
 		if(enemyScaleX){
-			this.scale.x = -enemyScaleX;
+			this.scale.x = -Math.sign(enemyScaleX);
 		}
 		if(!this.health){
 			return

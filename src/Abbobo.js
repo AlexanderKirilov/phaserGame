@@ -3,9 +3,8 @@ var Abbobo = (function(){
     	this.game = gameState.game;
         Phaser.Sprite.call(this, this.game, x, y, spriteSheet || 'abbo_sheet'); 
        
-          this.parentCreate();
- 
-          this.maxHealth = 100;
+          this.maxHealth = 12;
+          this.health = this.maxHealth;
           this.game.physics.arcade.enable(this);
           this.body.collideWorldBounds = true;
           this.anchor.setTo(0.5, 1);
@@ -16,10 +15,7 @@ var Abbobo = (function(){
           this.isEnemy = true;
           this.healthBarShape = null;
           this.abboDeltaVelocity = 50;
-          this.anchor.setTo(0.5, 1);
           this.damage = 0.5;
-          this.exist = true;
-          this.alive = true;
          
           this.player = gameState.player;
        
@@ -29,12 +25,11 @@ var Abbobo = (function(){
          this.animations.add('hit', Phaser.Animation.generateFrameNames('hit/', 0, 1, '', 1), 2, false);
          this.animations.add('gethit', Phaser.Animation.generateFrameNames('getHit/', 0, 3, '', 1), 4, false);
          this.animations.add('die', Phaser.Animation.generateFrameNames('die/', 0, 0, '', 1), 1, false);
-       
          this.game.add.existing(this);
          
          this.distanceToPlayerX;
- 		 this.distanceToPlayerY;
- 		 var self = this;
+ 		     this.distanceToPlayerY;
+ 		     var self = this;
  		 
  		 this.stateMachine = new StateMachine(this , {debug:true});
  		 this.stateMachine.add('walk', {
@@ -75,7 +70,7 @@ var Abbobo = (function(){
 						player.registerHit();
 						currState.playerHit = true;
 					}, function(abbo, player) {
-						return (abbo.bottom > player.bottom - 10 && abbo.bottom < player.bottom + 10
+						return (abbo.bottom > player.bottom - 10 && abbo.bottom < player.bottom + 4
 							&& !currState.playerHit);
 					});
 				}
@@ -110,7 +105,6 @@ var Abbobo = (function(){
  		
  		//transitions
  		this.stateMachine.transition('', 'walk', 'hit', function(){
- 			debugger
 			return(Math.abs(self.distanceToPlayerX) <= self.hitRange && Math.abs(self.distanceToPlayerY) <= 10 );
 		});
  		this.stateMachine.transition('', 'hit', 'walk', function(){
@@ -131,19 +125,15 @@ var Abbobo = (function(){
     
     Abbobo.prototype.registerHit = function(){
     	if(!this.health){
-			return
-		}
-		this.health -= player.damage
+			 return
+		  }
+		  this.health --;
 		if (this.stateMachine.currentState == 'getHit') {
 		} else {
 			this.stateMachine.doTransition('getHit');
 		}
 	};
    
-    Abbobo.prototype.parentCreate = function(){
-          this.health = this.maxHealth;       
-    };
-    
     Abbobo.prototype.drawHealthBar = function (color) {
        
        if (!color) {

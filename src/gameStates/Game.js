@@ -46,7 +46,7 @@
 			
 			/* Background level animations */
 			// fire animation (560, 120)
-			this.levelBackgroundGroup.create(new Fire (this.game, 560, 120));
+			this.levelBackgroundGroup.add(new Fire (this.game, 560, 120));
 			this.door = new door (this.game, 768, 175)
 			this.levelBackgroundGroup.add(this.door);
 			//Left gang animation
@@ -59,11 +59,8 @@
 			rightGang.animations.add('stay');
 			rightGang.animations.play('stay', 2, true);
 
-			// create final  boss (Abbobo)
-			//this.abbo = new Abbo(this.game, 1300, 200);
-
 			//create player
-			this.player = new Player(this, 40, 180);
+			this.player = new Player(this, 40, 206);
 			this.rootGroup.add(this.player);
 			
 			//set the camera follow to be more beat em up style;
@@ -117,7 +114,6 @@
 						self.enemiesGroup.forEach(function(child){
 							child.exists = true;
 						});
-
 						this.activateStage = false;
 					}
 					self.enemiesGroup.forEachExists(function(enemy){
@@ -131,7 +127,7 @@
 			this.StageMachine.add({
 				boundRight: 1065,
 				enter:function(){
-					self.enemiesGroup.add(new EnemyFrank(self, 768,172));
+					self.enemiesGroup.add(new EnemyFrank(self, 1070, 210));
 					self.enemiesGroup.add(new EnemyWilliam(self, 768,174));
 					self.enemiesGroup.forEach(function(child){
 						child.exists = false;
@@ -144,15 +140,18 @@
 					});
 				},
 				update:function(){
-					
+					if(!self.enemiesGroup.length){
+						self.StageMachine.advanceStage();
+					}
 				},
 				exit:function(){
-
+					self.enemiesGroup.removeAll();
 				}
 			});
 			this.StageMachine.add({
 				boundRight: 1524,
 				enter:function(){
+					self.enemiesGroup.add(new Abbobo(self, 1350,200));
 				},
 				update:function(){
 					
@@ -162,9 +161,9 @@
 				}
 			});
 			this.StageMachine.start();
-/*
+
 			//DEBUG ONLY
-			window.body = this.player.body;
+			/*window.body = this.player.body;
 			window.player = this.player;
 		    window.game = this.game;
 		    window.state = this;*/
