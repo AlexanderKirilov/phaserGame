@@ -26,7 +26,7 @@
 			this.load.image('bg', 'assets/levels/Stage_One_Base.png');
 			this.load.spritesheet('left_gang', 'assets/level_animations/leftGang.png', 45, 85);
 			this.load.spritesheet('right_gang', 'assets/level_animations/rightGang.png', 32, 93);
-			this.load.atlasJSONArray('fire_animation', 'assets/level_animations/fire_animation.png', 'assets/level_animations/fire_animation.json' );	
+			this.load.atlasJSONArray('level_animation', 'assets/level_animations/level_animation.png', 'assets/level_animations/level_animation.json' );	
 			//player
 			this.load.atlasJSONArray('billy_sheet', 'assets/player/billy_sprite.png', 'assets/player/billy_sprite.json');
 			//enemy

@@ -1,6 +1,6 @@
 var Fire = (function(){
 	function Fire (game, x, y) {
-		Phaser.Sprite.call(this, game, x, y, 'fire_animation');	
+		Phaser.Sprite.call(this, game, x, y, 'level_animation');	
 	
 		
 		game.physics.arcade.enable(this);

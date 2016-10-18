@@ -1,9 +1,9 @@
-var EnemyFrank = (function(){
-	function EnemyFrank (gameState, x, y, spriteSheet) {
+var EnemyWilliam = (function(){
+	function EnemyWilliam (gameState, x, y, spriteSheet) {
 		this.game = gameState.game;
-		Phaser.Sprite.call(this, this.game, x, y, spriteSheet || 'frank_sheet');
+		Phaser.Sprite.call(this, this.game, x, y, spriteSheet || 'william_sheet');
 
-		this.health = 4; // keep count of entitiies health	
+		this.health = 5; // keep count of entitiies health	
 	
 		this.game.physics.arcade.enable(this);
 		this.scale.x = -1;
@@ -238,10 +238,10 @@ var EnemyFrank = (function(){
 			return(!self.animations.currentAnim.isPlaying && (new Date().getTime() - self.stateMachine.timer.getTime() > 1500));
 		});
 	}
-	EnemyFrank.prototype = Object.create(Phaser.Sprite.prototype)
-	EnemyFrank.prototype.constructor = EnemyFrank;
+	EnemyWilliam.prototype = Object.create(Phaser.Sprite.prototype)
+	EnemyWilliam.prototype.constructor = EnemyWilliam;
 	
-	EnemyFrank.prototype.update = function(){
+	EnemyWilliam.prototype.update = function(){
 		if(!this.health){
 			this.stateMachine.doTransition('die')
 		}
@@ -252,7 +252,7 @@ var EnemyFrank = (function(){
 		this.stateMachine.update();
 
 	};
-	EnemyFrank.prototype.registerHit = function(direction, punchStateType){
+	EnemyWilliam.prototype.registerHit = function(direction, punchStateType){
 		//face the hitting enemy
 		if(direction){
 			this.scale.x = -direction;
@@ -272,5 +272,5 @@ var EnemyFrank = (function(){
 			this.stateMachine.doTransition('stunned');
 		}
 	};
-	return EnemyFrank;
+	return EnemyWilliam;
 })();

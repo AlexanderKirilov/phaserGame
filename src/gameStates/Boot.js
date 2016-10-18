@@ -6,8 +6,10 @@ var GameState = {};
 		}
 		Boot.prototype.init = function(){
 			this.input.maxPointers = 1;
-    		this.game.renderer.renderSession.roundPixels = true;
-    
+			this.game.stage.smoothed = false;
+    		this.game.renderer.renderSession.roundPixels = false;
+    		this.game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+    		//this.game.scale.pageAlignVertically = true;
 			if (this.game.device.desktop){
 				//any desktop specific settings go in here
 				this.scale.pageAlignHorizontally = true;

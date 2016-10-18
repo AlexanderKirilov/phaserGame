@@ -46,7 +46,9 @@
 			
 			/* Background level animations */
 			// fire animation (560, 120)
-			this.levelBackgroundGroup.add(new Fire (this.game, 560, 120));
+			this.levelBackgroundGroup.create(new Fire (this.game, 560, 120));
+			this.door = new door (this.game, 768, 175)
+			this.levelBackgroundGroup.add(this.door);
 			//Left gang animation
 			var leftGang = this.levelBackgroundGroup.create(490, 86, 'left_gang');
 			leftGang.animations.add('stay');
@@ -77,7 +79,7 @@
 			this.StageMachine.add({
 				boundRight: 400,
 				enter:function(){
-					self.enemiesGroup.add(new EnemyFrank(self, 400, 200));
+					self.enemiesGroup.add(new EnemyWilliam(self, 400, 200));
 					self.enemiesGroup.add(new EnemyFrank(self, 410, 230));
 				},
 				update:function(){
@@ -97,13 +99,17 @@
 				enter:function(){
 					this.activateStage = false;
 
-					self.enemiesGroup.add(new EnemyFrank(self, 800,0));
-					self.enemiesGroup.add(new EnemyFrank(self, 910,0));
+					self.enemiesGroup.add(new EnemyFrank(self, 800,1));
+					self.enemiesGroup.add(new EnemyWilliam(self, 910,1));
 					self.enemiesGroup.forEach(function(child){
+						child.stateMachine.currentState = 'fall';
 						child.exists = false;
 					});
 				},
 				update:function(){
+					if(!self.enemiesGroup.length){
+						self.StageMachine.advanceStage();
+					}
 					if(self.player.x > 880){
 						this.activateStage = true;
 					}
@@ -114,18 +120,54 @@
 
 						this.activateStage = false;
 					}
+					self.enemiesGroup.forEachExists(function(enemy){
+						enemy.update();
+					}, this);
+				},
+				exit:function(){
+					self.enemiesGroup.removeAll();
+				}
+			});
+			this.StageMachine.add({
+				boundRight: 1065,
+				enter:function(){
+					self.enemiesGroup.add(new EnemyFrank(self, 768,172));
+					self.enemiesGroup.add(new EnemyWilliam(self, 768,174));
+					self.enemiesGroup.forEach(function(child){
+						child.exists = false;
+					});
+					self.door.play();
+					self.door.animations.currentAnim.onComplete.add(function(){
+						self.enemiesGroup.forEach(function(child){
+							child.exists = true;
+						});
+					});
+				},
+				update:function(){
+					
 				},
 				exit:function(){
 
 				}
-			})
-			this.StageMachine.start();
+			});
+			this.StageMachine.add({
+				boundRight: 1524,
+				enter:function(){
+				},
+				update:function(){
+					
+				},
+				exit:function(){
 
+				}
+			});
+			this.StageMachine.start();
+/*
 			//DEBUG ONLY
 			window.body = this.player.body;
 			window.player = this.player;
 		    window.game = this.game;
-		    window.state = this;
+		    window.state = this;*/
 		};
 		Game.prototype.update = function(){
 			this.player.update();
