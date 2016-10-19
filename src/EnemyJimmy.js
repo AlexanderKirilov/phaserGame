@@ -3,7 +3,7 @@ var EnemyJimmy = (function(){
     	this.game = gameState.game;
         Phaser.Sprite.call(this, this.game, x, y, spriteSheet || 'jimmy_sheet'); 
 
-          this.health = 50;	
+          this.health = 8;	
           this.game.physics.arcade.enable(this);
           this.body.collideWorldBounds = true;
           this.anchor.setTo(0.5, 1);
@@ -15,7 +15,6 @@ var EnemyJimmy = (function(){
           this.isEnemy = true;
           this.healthBarShape = null;
           this.jimmyDeltaVelocity = 50;
-          this.anchor.setTo(0.5, 1);
           this.exist = true;
           this.alive = true;
          
@@ -232,12 +231,12 @@ var EnemyJimmy = (function(){
         
     	this.distanceToPlayerX = this.player.x - this.x;
 		this.distanceToPlayerY = this.player.y - this.y;
-   
+   /*
 		if((Math.abs(this.distanceToPlayerX) > 5 && Math.abs(this.distanceToPlayerY > 5)) || 
 				(Math.abs(this.distanceToPlayerX) < 5 && Math.abs(this.distanceToPlayerY < 5))) {
 			this.stateMachine.doTransition('walk');
 		}
-      
+      */
         this.stateMachine.update();
 
     }

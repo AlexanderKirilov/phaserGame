@@ -23,7 +23,7 @@ var Abbobo = (function(){
          this.animations.add('idle', Phaser.Animation.generateFrameNames('idle/', 0, 1, '', 1), 2, true);
          this.animations.add('walk', Phaser.Animation.generateFrameNames('walk/', 0, 4, '', 1), 8, true);
          this.animations.add('hit', Phaser.Animation.generateFrameNames('hit/', 0, 1, '', 1), 2, false);
-         this.animations.add('gethit', Phaser.Animation.generateFrameNames('getHit/', 0, 3, '', 1), 4, false);
+         this.animations.add('getHit', Phaser.Animation.generateFrameNames('getHit/', 0, 3, '', 1), 4, false);
          this.animations.add('die', Phaser.Animation.generateFrameNames('die/', 0, 0, '', 1), 1, false);
          this.game.add.existing(this);
          
@@ -84,7 +84,7 @@ var Abbobo = (function(){
 				self.body.velocity.x = -self.scale.x*10;
 			},
 			update: function(){
-				self.body.velocity.x -= self.body.velocity.x;
+        self.body.velocity.x -= self.body.velocity.x/50;
 			},
 			exit: function(){
 				self.body.velocity.x = 0;
@@ -114,7 +114,7 @@ var Abbobo = (function(){
 			return(!self.animations.currentAnim.isPlaying);
 		});
  		this.stateMachine.transition('', 'getHit', 'walk', function(){
-			return(!self.animations.currentAnim.isPlaying && (new Date().getTime() -self.stateMachine.timer.getTime() > 1000));
+			return(!self.animations.currentAnim.isPlaying);
 		});
          
        
@@ -128,10 +128,11 @@ var Abbobo = (function(){
 			 return
 		  }
 		  this.health --;
-		if (this.stateMachine.currentState == 'getHit') {
-		} else {
-			this.stateMachine.doTransition('getHit');
-		}
+      if (this.stateMachine.currentState == 'getHit') {
+
+      } else {
+      	this.stateMachine.doTransition('getHit');
+      }
 	};
    
     Abbobo.prototype.drawHealthBar = function (color) {
@@ -154,13 +155,13 @@ var Abbobo = (function(){
     Abbobo.prototype.update = function() { 
     	
     	if(!this.health) {
-			this.stateMachine.doTransition('die')
-		}
+			 this.stateMachine.doTransition('die')
+		  }
         
     	this.distanceToPlayerX = this.player.x - this.x;
-		this.distanceToPlayerY = this.player.y - this.y;   
-        this.stateMachine.update();
-        this.drawHealthBar();
+	    this.distanceToPlayerY = this.player.y - this.y;   
+      this.stateMachine.update();
+      this.drawHealthBar();
     }
    
     return Abbobo;

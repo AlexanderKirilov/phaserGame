@@ -78,6 +78,7 @@
 				enter:function(){
 					self.enemiesGroup.add(new EnemyWilliam(self, 400, 200));
 					self.enemiesGroup.add(new EnemyFrank(self, 410, 230));
+
 				},
 				update:function(){
 					if(!self.enemiesGroup.length){
@@ -151,7 +152,8 @@
 			this.StageMachine.add({
 				boundRight: 1524,
 				enter:function(){
-					self.enemiesGroup.add(new Abbobo(self, 1350,200));
+					self.enemiesGroup.add(new Abbobo(self, 1350,215));
+					self.enemiesGroup.add(new EnemyJimmy(self, 1525, 190));
 				},
 				update:function(){
 					
@@ -163,10 +165,10 @@
 			this.StageMachine.start();
 
 			//DEBUG ONLY
-			/*window.body = this.player.body;
+			window.body = this.player.body;
 			window.player = this.player;
 		    window.game = this.game;
-		    window.state = this;*/
+		    window.state = this;
 		};
 		Game.prototype.update = function(){
 			this.player.update();
